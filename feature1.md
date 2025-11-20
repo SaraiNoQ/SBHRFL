@@ -111,9 +111,9 @@
 python run.py --config configs/default.json
 ```
 
-配置指南：
-- `model: "base"` 表示最原始的联邦原型学习；改为 `"hdib"` 即启用谱式纯化 + 跨层注意 + 信息瓶颈，或改为 `"resnet10"` 以验证标准ResNet骨干。
-- `use_quality_fusion / use_reputation_consensus / use_blockchain_memory / use_cluster_prototypes` 分别控制质量感知聚合、账本异常审计、区块链记忆蒸馏、基于聚类的原型过滤，可自由组合验证Idea。
+- 配置指南：
+  - `model: "base"` 表示最原始的联邦原型学习；改为 `"hdib"` 即启用谱式纯化 + 跨层注意 + 信息瓶颈（可通过 `hdib_backbone` 在自研CNN与 `resnet10` 之间切换），或改为 `"resnet10"` 以验证标准ResNet骨干。
+  - `use_quality_fusion / use_reputation_consensus / use_blockchain_memory / use_cluster_prototypes` 分别控制质量感知聚合、账本异常审计、区块链记忆蒸馏、基于聚类的原型过滤，可自由组合验证Idea。
 
 模块映射：
 - **Hierarchical Semantic Fingerprints：** `sbhfrl/models/hdib.py` 中的 `HDIBNet`。
@@ -124,67 +124,3 @@ python run.py --config configs/default.json
 
 首次运行会自动下载 CIFAR-10 数据（需网络访问）；若环境无法联网，请提前将数据集放置在 `./data`。
 
-
-### 6. OUTPUTS
-
-```
-[Round 1] HD-IB Accuracy: 13.15%
-[Round 2] HD-IB Accuracy: 17.43%
-[Round 3] HD-IB Accuracy: 18.79%
-[Round 4] HD-IB Accuracy: 26.05%
-[Round 5] HD-IB Accuracy: 18.94%
-[Round 6] HD-IB Accuracy: 19.74%
-[Round 7] HD-IB Accuracy: 24.60%
-[Round 8] HD-IB Accuracy: 30.71%
-[Round 9] HD-IB Accuracy: 28.64%
-[Round 10] HD-IB Accuracy: 24.96%
-[Round 11] HD-IB Accuracy: 28.06%
-[Round 12] HD-IB Accuracy: 31.28%
-[Round 13] HD-IB Accuracy: 35.09%
-[Round 14] HD-IB Accuracy: 39.77%
-[Round 15] HD-IB Accuracy: 43.16%
-[Round 16] HD-IB Accuracy: 40.92%
-[Round 17] HD-IB Accuracy: 44.76%
-[Round 18] HD-IB Accuracy: 44.57%
-[Round 19] HD-IB Accuracy: 40.44%
-[Round 20] HD-IB Accuracy: 36.59%
-[Round 21] HD-IB Accuracy: 46.74%
-[Round 22] HD-IB Accuracy: 44.87%
-[Round 23] HD-IB Accuracy: 47.58%
-[Round 24] HD-IB Accuracy: 51.45%
-[Round 25] HD-IB Accuracy: 40.54%
-[Round 26] HD-IB Accuracy: 46.97%
-```
-
-```
-[Round 1] HD-IB+Clustering Accuracy: 10.00%
-[Round 2] HD-IB+Clustering Accuracy: 18.29%
-[Round 3] HD-IB+Clustering Accuracy: 30.72%
-[Round 4] HD-IB+Clustering Accuracy: 39.97%
-[Round 5] HD-IB+Clustering Accuracy: 37.48%
-[Round 6] HD-IB+Clustering Accuracy: 43.96%
-[Round 7] HD-IB+Clustering Accuracy: 43.99%
-[Round 8] HD-IB+Clustering Accuracy: 49.90%
-[Round 9] HD-IB+Clustering Accuracy: 46.21%
-[Round 10] HD-IB+Clustering Accuracy: 46.11%
-[Round 11] HD-IB+Clustering Accuracy: 48.91%
-[Round 12] HD-IB+Clustering Accuracy: 54.95%
-[Round 13] HD-IB+Clustering Accuracy: 51.36%
-[Round 14] HD-IB+Clustering Accuracy: 53.71%
-[Round 15] HD-IB+Clustering Accuracy: 62.88%
-[Round 16] HD-IB+Clustering Accuracy: 60.55%
-[Round 17] HD-IB+Clustering Accuracy: 59.15%
-[Round 18] HD-IB+Clustering Accuracy: 62.79%
-[Round 19] HD-IB+Clustering Accuracy: 58.23%
-[Round 20] HD-IB+Clustering Accuracy: 61.44%
-[Round 21] HD-IB+Clustering Accuracy: 63.45%
-[Round 22] HD-IB+Clustering Accuracy: 61.92%
-[Round 23] HD-IB+Clustering Accuracy: 67.24%
-[Round 24] HD-IB+Clustering Accuracy: 68.05%
-[Round 25] HD-IB+Clustering Accuracy: 62.18%
-[Round 26] HD-IB+Clustering Accuracy: 60.98%
-[Round 27] HD-IB+Clustering Accuracy: 67.85%
-[Round 28] HD-IB+Clustering Accuracy: 67.65%
-[Round 29] HD-IB+Clustering Accuracy: 65.27%
-[Round 30] HD-IB+Clustering Accuracy: 63.53%
-```

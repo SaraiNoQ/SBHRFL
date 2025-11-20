@@ -14,7 +14,7 @@ This repository now separates the SB-HFRL simulation into modular components:
 1. Install dependencies (`torch`, `torchvision` etc.) inside your Python environment.
 2. Adjust `configs/default.json`:
    - Keep `model: "base"` with all `use_*` flags set to `false` to run plain FedProto.
-   - Switch to `"hdib"` (Muon optimizer + HD-IB heads) or `"resnet10"` (standard ResNet backbone) and toggle `use_quality_fusion`, `use_reputation_consensus`, `use_blockchain_memory`, `use_cluster_prototypes` to incrementally enable SB-HFRL components.
+   - Switch to `"hdib"` (Muon optimizer + HD-IB heads, configurable `hdib_backbone`) or `"resnet10"` (standard ResNet backbone) and toggle `use_quality_fusion`, `use_reputation_consensus`, `use_blockchain_memory`, `use_cluster_prototypes` to incrementally enable SB-HFRL components.
 3. Launch training:
 
 ```bash
@@ -31,6 +31,7 @@ The console output shows round accuracy and which components are currently enabl
   - `data_root`: directory to cache CIFAR-10; use an absolute path if the repo is read-only.
   - `num_classes`: number of classes; keep `10` for CIFAR-10 unless you swap datasets.
   - `model`: choose `"base"`, `"hdib"`, or `"resnet10"` depending on the backbone you want to study.
+  - `hdib_backbone`: when `model: "hdib"`, pick `"custom"` (original CNN) or `"resnet10"`; future ResNet variants can be added similarly.
 - **Training Horizon**
   - `rounds`: total FL rounds; start with `10-30` for quick runs, increase for convergence studies.
   - `local_epochs`: client-side epochs per round; `1` keeps runtime low, but you can raise to improve on-device fitting.
