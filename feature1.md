@@ -104,22 +104,21 @@
 这个方案既有数学推导（IB理论下界），又有系统架构设计（分片区块链），还有针对场景的特定优化，非常适合发表在IEEE TMC, TITS, 或 IoT Journal 等高质量期刊上。
 
 ---
-
 ### 5. PyTorch仿真脚本（CIFAR-10）
-新增 `sb_hfrl.py` 可以运行一个轻量级的端到端仿真，覆盖“HD-IB → 质量感知原型融合 → 分片共识 → 区块链记忆蒸馏”四个阶段：
+当前代码入口为 `run.py + configs/default.json`，通过配置文件即可切换“基础FedProto”与“SB-HFRL组件”：
 
 ```bash
-python sb_hfrl.py \
-  --rounds 3 \
-  --num-shards 2 \
-  --clients-per-shard 5 \
-  --max-round-clients 2
+python run.py --config configs/default.json
 ```
 
-脚本要点：
-- **Hierarchical Semantic Fingerprints：** `HDIBNet` 中的 `SpectrumWiseFeaturePurifier`、`CrossLayerAttention`、逐层 IB 头共同实现谱式纯化 + 多层注意。
-- **Quality-Aware Prototype Fusion：** `QualityAwarePrototypeFusion` 使用密度、信道质量（Beta分布模拟）和节点信誉构造 $W_i$。
-- **Ledger-based Anomaly Auditing：** `ReputationConsensus` 计算分片原型间的 Wasserstein（L2）距离并自适应惩罚黑名单分片。
-- **Immutable History Guided Retrospection：** `BlockchainMemory` 维护链上指纹序列并用 EMA 生成教师指纹，实现车辆跨域蒸馏。
+配置指南：
+- `model: "base"` 表示最原始的联邦原型学习；改为 `"hdib"` 即启用谱式纯化 + 跨层注意 + 信息瓶颈。
+- `use_quality_fusion / use_reputation_consensus / use_blockchain_memory` 分别控制质量感知聚合、账本异常审计、区块链记忆蒸馏，可自由组合验证Idea。
 
-首次运行会自动下载 CIFAR-10 数据（需网络访问）；若环境无法联网，请提前将数据集放置在 `./data` 目录下。*** End Patch
+模块映射：
+- **Hierarchical Semantic Fingerprints：** `sbhfrl/models/hdib.py` 中的 `HDIBNet`。
+- **Quality-Aware Prototype Fusion：** `sbhfrl/federated/aggregation.py` 的 `QualityAwareAggregator`。
+- **Ledger-based Anomaly Auditing：** `sbhfrl/federated/consensus.py` 的 `ReputationConsensus`。
+- **Immutable History Guided Retrospection：** `sbhfrl/federated/blockchain.py` 的 EMA 记忆模块。
+
+首次运行会自动下载 CIFAR-10 数据（需网络访问）；若环境无法联网，请提前将数据集放置在 `./data`。

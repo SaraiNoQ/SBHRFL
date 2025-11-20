@@ -1,2 +1,100 @@
-.venv/
 .python-version
+
+# === Python cache ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.egg-info/
+*.egg
+*.eggs/
+
+# === Virtual environments ===
+.venv/
+venv/
+env/
+ENV/
+
+# uv / poetry / pipenv lock/venv dirs
+.uv/
+.pyenv/
+
+# === Jupyter Notebook ===
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Jupyter outputs (large)
+*.nbconvert.ipynb
+
+# === Log files ===
+*.log
+logs/
+wandb/
+tensorboard/
+tb_logs/
+mlruns/     # MLflow
+
+# === Deep learning training outputs ===
+checkpoints/
+weights/
+models/
+outputs/
+runs/           # PyTorch Lightning / TensorBoard
+results/
+experiments/
+*.ckpt
+*.pth
+*.pt
+*.h5
+
+# === Dataset / large files ===
+data/
+dataset/
+datasets/
+*.zip
+*.tar
+*.tar.gz
+*.npz
+*.npy
+*.pickle
+*.pkl
+
+# HuggingFace datasets and cache
+~/.cache/huggingface/
+.huggingface/
+
+# === PyTorch & TF generated files ===
+*.onnx
+*.pb
+*.tflite
+
+# === System / Editor ===
+.DS_Store
+Thumbs.db
+
+# VSCode
+.vscode/
+.code/
+
+# JetBrains
+.idea/
+
+# === Build artifacts ===
+build/
+dist/
+*.so
+*.dll
+*.dylib
+
+# === Environment settings ===
+*.env
+.env.*
+.envrc
+
+# === Temporary files ===
+tmp/
+temp/
+*.tmp
+*.swp
+*.bak
