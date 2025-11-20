@@ -33,14 +33,18 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
     for client in clients:
         shard_groups[client.shard_id].append(client)
 
+    use_cluster = config.get("use_cluster_prototypes", False)
+    cluster_threshold = config.get("cluster_threshold", 0.8)
     aggregator = (
         QualityAwareAggregator(
             config.get("alpha_quality", 0.6),
             config.get("beta_quality", 0.2),
             config.get("gamma_quality", 0.2),
+            use_cluster=use_cluster,
+            cluster_threshold=cluster_threshold,
         )
         if config.get("use_quality_fusion", False)
-        else SimpleAggregator()
+        else SimpleAggregator(use_cluster=use_cluster, cluster_threshold=cluster_threshold)
     )
     consensus = (
         ReputationConsensus(config.get("wasserstein_threshold", 0.8), config.get("init_reputation", 0.8))
@@ -83,5 +87,7 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
             enabled_components.append("LedgerConsensus")
         if config.get("use_blockchain_memory"):
             enabled_components.append("MemoryDistill")
+        if use_cluster:
+            enabled_components.append("Clustering")
         tag = "+".join(enabled_components) if enabled_components else "FedProto"
         print(f"[Round {round_idx + 1}] {tag} Accuracy: {acc * 100:.2f}%")

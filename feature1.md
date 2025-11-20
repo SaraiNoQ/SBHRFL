@@ -112,13 +112,46 @@ python run.py --config configs/default.json
 ```
 
 配置指南：
-- `model: "base"` 表示最原始的联邦原型学习；改为 `"hdib"` 即启用谱式纯化 + 跨层注意 + 信息瓶颈。
-- `use_quality_fusion / use_reputation_consensus / use_blockchain_memory` 分别控制质量感知聚合、账本异常审计、区块链记忆蒸馏，可自由组合验证Idea。
+- `model: "base"` 表示最原始的联邦原型学习；改为 `"hdib"` 即启用谱式纯化 + 跨层注意 + 信息瓶颈，或改为 `"resnet10"` 以验证标准ResNet骨干。
+- `use_quality_fusion / use_reputation_consensus / use_blockchain_memory / use_cluster_prototypes` 分别控制质量感知聚合、账本异常审计、区块链记忆蒸馏、基于聚类的原型过滤，可自由组合验证Idea。
 
 模块映射：
 - **Hierarchical Semantic Fingerprints：** `sbhfrl/models/hdib.py` 中的 `HDIBNet`。
-- **Quality-Aware Prototype Fusion：** `sbhfrl/federated/aggregation.py` 的 `QualityAwareAggregator`。
+- **ResNet Backbone Variant：** `sbhfrl/models/resnet.py` 提供 `ResNet10` 以对比标准视觉骨干。
+- **Quality-Aware Prototype Fusion：** `sbhfrl/federated/aggregation.py` 的 `QualityAwareAggregator`（内置轻量聚类过滤）。
 - **Ledger-based Anomaly Auditing：** `sbhfrl/federated/consensus.py` 的 `ReputationConsensus`。
 - **Immutable History Guided Retrospection：** `sbhfrl/federated/blockchain.py` 的 EMA 记忆模块。
 
 首次运行会自动下载 CIFAR-10 数据（需网络访问）；若环境无法联网，请提前将数据集放置在 `./data`。
+
+
+### 6. OUTPUTS
+
+```
+[Round 1] HD-IB Accuracy: 13.15%
+[Round 2] HD-IB Accuracy: 17.43%
+[Round 3] HD-IB Accuracy: 18.79%
+[Round 4] HD-IB Accuracy: 26.05%
+[Round 5] HD-IB Accuracy: 18.94%
+[Round 6] HD-IB Accuracy: 19.74%
+[Round 7] HD-IB Accuracy: 24.60%
+[Round 8] HD-IB Accuracy: 30.71%
+[Round 9] HD-IB Accuracy: 28.64%
+[Round 10] HD-IB Accuracy: 24.96%
+[Round 11] HD-IB Accuracy: 28.06%
+[Round 12] HD-IB Accuracy: 31.28%
+[Round 13] HD-IB Accuracy: 35.09%
+[Round 14] HD-IB Accuracy: 39.77%
+[Round 15] HD-IB Accuracy: 43.16%
+[Round 16] HD-IB Accuracy: 40.92%
+[Round 17] HD-IB Accuracy: 44.76%
+[Round 18] HD-IB Accuracy: 44.57%
+[Round 19] HD-IB Accuracy: 40.44%
+[Round 20] HD-IB Accuracy: 36.59%
+[Round 21] HD-IB Accuracy: 46.74%
+[Round 22] HD-IB Accuracy: 44.87%
+[Round 23] HD-IB Accuracy: 47.58%
+[Round 24] HD-IB Accuracy: 51.45%
+[Round 25] HD-IB Accuracy: 40.54%
+[Round 26] HD-IB Accuracy: 46.97%
+```

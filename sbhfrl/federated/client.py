@@ -7,6 +7,7 @@ from torch.utils.data import DataLoader
 from ..data_utils import compute_prototypes
 from ..losses import BaseProtoLoss, HDIBLoss
 from ..models import build_model
+from ..optim import Muon
 
 
 class ClientNode:
@@ -29,12 +30,22 @@ class ClientNode:
     ) -> Dict:
         model = build_model(self.config).to(device)
         model.load_state_dict(global_state)
-        optimizer = torch.optim.SGD(
-            model.parameters(),
-            lr=self.config.get("lr", 0.01),
-            momentum=self.config.get("momentum", 0.9),
-            weight_decay=self.config.get("weight_decay", 1e-4),
-        )
+        if self.use_hdib:
+            betas = self.config.get("muon_betas", [0.9, 0.99])
+            optimizer = Muon(
+                model.parameters(),
+                lr=self.config.get("lr", 0.01),
+                betas=(betas[0], betas[1]),
+                eps=self.config.get("muon_eps", 1e-8),
+                weight_decay=self.config.get("weight_decay", 1e-4),
+            )
+        else:
+            optimizer = torch.optim.SGD(
+                model.parameters(),
+                lr=self.config.get("lr", 0.01),
+                momentum=self.config.get("momentum", 0.9),
+                weight_decay=self.config.get("weight_decay", 1e-4),
+            )
         for _ in range(self.config.get("local_epochs", 1)):
             for images, labels in self.loader:
                 images = images.to(device)
