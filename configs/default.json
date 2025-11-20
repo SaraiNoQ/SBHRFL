@@ -23,7 +23,7 @@
   "ema_decay": 0.7,
   "use_cluster_prototypes": true,
   "cluster_threshold": 0.85,
-  "use_quality_fusion": false,
+  "use_quality_fusion": true,
   "use_reputation_consensus": false,
   "use_blockchain_memory": false,
   "lambda_ib": 1.0,

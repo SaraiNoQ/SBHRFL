@@ -15,8 +15,25 @@ def set_seed(seed: int) -> None:
 
 
 def get_device(requested: str) -> torch.device:
+    """
+    返回设备：
+    - "auto": 优先 CUDA，其次 MPS，最后 CPU
+    - 其它值直接传给 torch.device()
+    """
     if requested == "auto":
-        return torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if torch.cuda.is_available():
+            return torch.device("cuda")
+        elif torch.backends.mps.is_available():
+            return torch.device("mps")
+        else:
+            return torch.device("cpu")
+
+    # 如果用户手动指定设备
+    if requested == "mps" and not torch.backends.mps.is_available():
+        raise ValueError("MPS not available on this machine.")
+    if requested == "cuda" and not torch.cuda.is_available():
+        raise ValueError("CUDA not available on this machine.")
+
     return torch.device(requested)
 
 

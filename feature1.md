@@ -155,3 +155,36 @@ python run.py --config configs/default.json
 [Round 25] HD-IB Accuracy: 40.54%
 [Round 26] HD-IB Accuracy: 46.97%
 ```
+
+```
+[Round 1] HD-IB+Clustering Accuracy: 10.00%
+[Round 2] HD-IB+Clustering Accuracy: 18.29%
+[Round 3] HD-IB+Clustering Accuracy: 30.72%
+[Round 4] HD-IB+Clustering Accuracy: 39.97%
+[Round 5] HD-IB+Clustering Accuracy: 37.48%
+[Round 6] HD-IB+Clustering Accuracy: 43.96%
+[Round 7] HD-IB+Clustering Accuracy: 43.99%
+[Round 8] HD-IB+Clustering Accuracy: 49.90%
+[Round 9] HD-IB+Clustering Accuracy: 46.21%
+[Round 10] HD-IB+Clustering Accuracy: 46.11%
+[Round 11] HD-IB+Clustering Accuracy: 48.91%
+[Round 12] HD-IB+Clustering Accuracy: 54.95%
+[Round 13] HD-IB+Clustering Accuracy: 51.36%
+[Round 14] HD-IB+Clustering Accuracy: 53.71%
+[Round 15] HD-IB+Clustering Accuracy: 62.88%
+[Round 16] HD-IB+Clustering Accuracy: 60.55%
+[Round 17] HD-IB+Clustering Accuracy: 59.15%
+[Round 18] HD-IB+Clustering Accuracy: 62.79%
+[Round 19] HD-IB+Clustering Accuracy: 58.23%
+[Round 20] HD-IB+Clustering Accuracy: 61.44%
+[Round 21] HD-IB+Clustering Accuracy: 63.45%
+[Round 22] HD-IB+Clustering Accuracy: 61.92%
+[Round 23] HD-IB+Clustering Accuracy: 67.24%
+[Round 24] HD-IB+Clustering Accuracy: 68.05%
+[Round 25] HD-IB+Clustering Accuracy: 62.18%
+[Round 26] HD-IB+Clustering Accuracy: 60.98%
+[Round 27] HD-IB+Clustering Accuracy: 67.85%
+[Round 28] HD-IB+Clustering Accuracy: 67.65%
+[Round 29] HD-IB+Clustering Accuracy: 65.27%
+[Round 30] HD-IB+Clustering Accuracy: 63.53%
+```
