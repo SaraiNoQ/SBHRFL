@@ -44,10 +44,18 @@ def dirichlet_partition(dataset: Dataset, num_clients: int, alpha: float) -> Lis
     return [Subset(dataset, indices) for indices in client_indices]
 
 
-def build_loaders(subsets: List[Subset], batch_size: int) -> List[DataLoader]:
+def build_loaders(subsets: List[Subset], batch_size: int, num_workers: int = 0) -> List[DataLoader]:
     loaders = []
     for subset in subsets:
-        loaders.append(DataLoader(subset, batch_size=batch_size, shuffle=True, num_workers=2, drop_last=len(subset) >= batch_size))
+        loaders.append(
+            DataLoader(
+                subset,
+                batch_size=batch_size,
+                shuffle=True,
+                num_workers=num_workers,
+                drop_last=len(subset) >= batch_size,
+            )
+        )
     return loaders
 
 

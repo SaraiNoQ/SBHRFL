@@ -124,3 +124,46 @@ python run.py --config configs/default.json
 
 首次运行会自动下载 CIFAR-10 数据（需网络访问）；若环境无法联网，请提前将数据集放置在 `./data`。
 
+---
+
+### 6. Spectrum-wise Feature Purification (SFP) 技术详解
+
+#### 1. 设计直觉 (Intuition)
+在车联网场景下，图像数据的异构性主要体现为“特征偏移（Feature Shift）”，例如：
+*   **内容（Content）：** 车辆本身的形状、结构（这是我们需要保留的）。
+*   **风格/噪声（Style/Noise）：** 雨雾天气、光照强度、摄像头传感器的噪点（这是我们需要去除的）。
+
+**“谱（Spectrum）”的定义：** 在深度神经网络（CNN或Transformer）中，不同深度的层代表了不同频率的特征。浅层网络捕捉高频细节（纹理、边缘，最容易受雨点、噪点影响），深层网络捕捉低频语义（形状、类别）。
+
+SFP 的目标是：**在不同层级（谱段）上分别进行提纯，利用信息瓶颈理论挤掉“环境噪声”，只保留“语义指纹”。**
+
+#### 2. 具体实施步骤
+
+我们将本地模型分为 $L$ 层，选取 $K$ 个关键层（例如浅、中、深三层）作为“谱节点”。
+
+**步骤一：多谱段特征提取 (Multi-Spectrum Extraction)**
+对于输入图像 $X$，本地编码器提取出 $K$ 组特征图（Feature Maps）：
+$$ Z = \{z^1, z^2, ..., z^K\} $$
+其中 $z^1$ 是浅层特征（包含丰富纹理但噪声大），$z^K$ 是深层特征（语义强但细节少）。
+
+**步骤二：基于信息瓶颈的层级纯化 (Layer-wise IB Purification)**
+这是核心创新点。我们不直接使用原始特征 $z^k$，而是通过一个轻量级的**纯化器（Purifier，通常是一个由MLP构成的变分结构）**，将 $z^k$ 映射为纯化特征 $\hat{z}^k$。
+
+根据信息瓶颈（IB）原则，我们需要最小化互信息 $I(\hat{z}^k; X)$（遗忘原始输入中的背景/噪声），同时最大化 $I(\hat{z}^k; Y)$（保留类别信息）。
+
+在联邦学习的本地训练中，转化为最小化以下损失函数 $L_{IB}$：
+$$ L_{IB} = \sum_{k=1}^{K} \left( \underbrace{-\mathbb{E}[\log q(y|\hat{z}^k)]}_{\text{Prediction Sufficiency}} + \beta_k \cdot \underbrace{D_{KL}(p(\hat{z}^k|z^k) || r(\hat{z}^k))}_{\text{Compression/Purification}} \right) $$
+*   **解释：** 第一项保证每一层的特征都能尽可能预测出正确的车辆类别；第二项强制特征分布接近标准分布（如高斯分布），从而“挤压”掉那些属于特定域（如雨天背景）的冗余信息。
+
+**步骤三：自适应谱注意力融合 (Adaptive Spectral Attention)**
+不同环境下，有效的特征层级不同（例如雾天浅层特征几乎失效，应依赖深层）。我们引入一个可学习的注意力向量 $\alpha = [\alpha_1, ..., \alpha_K]$：
+$$ \alpha = \text{Softmax}(\text{MLP}(\text{Concat}(z^1, ..., z^K))) $$
+最终生成的**“语义指纹（Semantic Fingerprint）”** $P_{local}$ 是各层纯化特征的加权融合：
+$$ P_{local} = \sum_{k=1}^{K} \alpha_k \cdot \hat{z}^k $$
+
+**步骤四：层级语义一致性约束 (Cross-Spectrum Consistency)**
+为了防止浅层特征和深层特征在语义空间上“打架”，我们增加一个一致性损失，强制浅层特征在经过映射后，其分布要向深层特征靠拢（因为深层语义更准确）：
+$$ L_{Consist} = \sum_{k=1}^{K-1} || \hat{z}^k - \text{StopGradient}(\hat{z}^K) ||_2^2 $$
+
+
+

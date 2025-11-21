@@ -27,7 +27,7 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
     train_dataset, test_dataset = get_cifar10_datasets(root=config.get("data_root", "./data"))
     num_clients = config["num_shards"] * config["clients_per_shard"]
     subsets = dirichlet_partition(train_dataset, num_clients, config.get("alpha_dirichlet", 0.5))
-    loaders = build_loaders(subsets, config.get("batch_size", 64))
+    loaders = build_loaders(subsets, config.get("batch_size", 64), num_workers=config.get("data_num_workers", 0))
     clients = _create_clients(loaders, config)
     shard_groups: Dict[int, List[ClientNode]] = defaultdict(list)
     for client in clients:
@@ -59,7 +59,12 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
 
     global_model = build_model(config).to(device)
     global_state = {k: v.cpu() for k, v in global_model.state_dict().items()}
-    test_loader = DataLoader(test_dataset, batch_size=256, shuffle=False, num_workers=2)
+    test_loader = DataLoader(
+        test_dataset,
+        batch_size=256,
+        shuffle=False,
+        num_workers=config.get("data_num_workers", 0),
+    )
 
     for round_idx in range(config.get("rounds", 1)):
         shard_summaries = []
