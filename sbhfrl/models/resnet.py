@@ -3,6 +3,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models import ResNet18_Weights, resnet18
 
 
 class BasicBlock(nn.Module):
@@ -59,6 +60,37 @@ class ResNet10(nn.Module):
         out = self.layer4(out)
         out = self.avgpool(out).flatten(1)
         embeddings = F.normalize(self.embed(out), dim=1)
+        logits = self.classifier(embeddings)
+        self._last_aux = {}
+        return logits, embeddings
+
+    def encode(self, x: torch.Tensor) -> torch.Tensor:
+        _, embeddings = self.forward(x)
+        return embeddings
+
+    @property
+    def aux(self):
+        return self._last_aux
+
+
+class ResNet18(nn.Module):
+    def __init__(self, num_classes: int = 10, embedding_dim: int = 128, pretrained: bool = True):
+        super().__init__()
+        self.embedding_dim = embedding_dim
+        self._last_aux = {}
+        try:
+            weights = ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
+            backbone = resnet18(weights=weights)
+        except Exception:
+            backbone = resnet18(weights=None)
+        backbone.fc = nn.Identity()
+        self.backbone = backbone
+        self.embed = nn.Linear(512, embedding_dim)
+        self.classifier = nn.Linear(embedding_dim, num_classes)
+
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        feats = self.backbone(x)
+        embeddings = F.normalize(self.embed(feats), dim=1)
         logits = self.classifier(embeddings)
         self._last_aux = {}
         return logits, embeddings

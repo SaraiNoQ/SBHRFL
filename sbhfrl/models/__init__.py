@@ -2,7 +2,7 @@ from typing import Dict
 
 from .base import ProtoBackbone
 from .hdib import HDIBNet
-from .resnet import ResNet10
+from .resnet import ResNet10, ResNet18
 
 
 def build_model(config: Dict):
@@ -14,7 +14,10 @@ def build_model(config: Dict):
             num_classes=num_classes,
             latent_dim=embedding_dim,
             backbone=config.get("hdib_backbone", "custom"),
+            backbone_pretrained=config.get("backbone_pretrained", True),
         )
+    if model_name == "resnet18":
+        return ResNet18(num_classes=num_classes, embedding_dim=embedding_dim, pretrained=config.get("backbone_pretrained", True))
     if model_name == "resnet10":
         return ResNet10(num_classes=num_classes, embedding_dim=embedding_dim)
     return ProtoBackbone(num_classes=num_classes, embedding_dim=embedding_dim)

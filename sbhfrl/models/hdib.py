@@ -3,6 +3,7 @@ from typing import List, Sequence, Tuple
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models import ResNet18_Weights, resnet18
 
 from .resnet import BasicBlock
 
@@ -109,11 +110,18 @@ class AlignmentHead(nn.Module):
 
 
 class HDIBNet(nn.Module):
-    def __init__(self, num_classes: int = 10, latent_dim: int = 128, backbone: str = "custom"):
+    def __init__(
+        self,
+        num_classes: int = 10,
+        latent_dim: int = 128,
+        backbone: str = "custom",
+        backbone_pretrained: bool = True,
+    ):
         super().__init__()
         self.embedding_dim = latent_dim
         self._last_aux = {}
         self.backbone_type = backbone
+        self.backbone_pretrained = backbone_pretrained
         self.res_inplanes = 64
         self.stem, self.blocks, self.purifiers, self.channels = self._build_backbone(backbone)
         self.ib_heads = nn.ModuleList([IBHead(c, latent_dim) for c in self.channels])
@@ -124,6 +132,8 @@ class HDIBNet(nn.Module):
     def _build_backbone(self, backbone: str):
         if backbone == "resnet10":
             return self._build_resnet10_backbone()
+        if backbone == "resnet18":
+            return self._build_resnet18_backbone(pretrained=self.backbone_pretrained)
         return self._build_custom_backbone()
 
     def _build_custom_backbone(self):
@@ -165,6 +175,18 @@ class HDIBNet(nn.Module):
             block = self._make_res_layer(planes, blocks=1, stride=stride)
             blocks.append(block)
             purifiers.append(SpectrumWiseFeaturePurifier(planes))
+        return stem, blocks, purifiers, channels
+
+    def _build_resnet18_backbone(self, pretrained: bool = True):
+        try:
+            weights = ResNet18_Weights.IMAGENET1K_V1 if pretrained else None
+            backbone = resnet18(weights=weights)
+        except Exception:
+            backbone = resnet18(weights=None)
+        stem = nn.Sequential(backbone.conv1, backbone.bn1, backbone.relu, backbone.maxpool)
+        channels = [64, 128, 256]
+        blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3])
+        purifiers = nn.ModuleList([SpectrumWiseFeaturePurifier(c) for c in channels])
         return stem, blocks, purifiers, channels
 
     def _make_res_layer(self, planes: int, blocks: int, stride: int) -> nn.Sequential:
