@@ -46,22 +46,23 @@ class HDIBLoss(nn.Module):
         self,
         logits: torch.Tensor,
         labels: torch.Tensor,
-        fingerprints: List[torch.Tensor],
-        latent_stats: List[Tuple[torch.Tensor, torch.Tensor]],
+        mus: List[torch.Tensor],
+        logvars: List[torch.Tensor],
+        sampled_feats: List[torch.Tensor],
         fused_repr: torch.Tensor,
         teacher_proto: torch.Tensor = None,
     ) -> torch.Tensor:
         loss = self.ce(logits, labels)
-        if latent_stats:
-            ib_loss = sum(kl_divergence(mu, logvar) for mu, logvar in latent_stats)
+        if mus and logvars:
+            ib_loss = sum(kl_divergence(mu, logvar) for mu, logvar in zip(mus, logvars))
             loss = loss + self.lambda_ib * ib_loss
         if fused_repr is not None:
             loss = loss + self.lambda_contrast * supervised_contrastive(fused_repr, labels)
-        if len(fingerprints) > 1:
-            deepest = fingerprints[-1].detach()
+        if len(sampled_feats) > 1:
+            deepest = sampled_feats[-1].detach()
             consistency = torch.tensor(0.0, device=logits.device)
-            for finger in fingerprints[:-1]:
-                consistency = consistency + F.mse_loss(finger, deepest)
+            for feat in sampled_feats[:-1]:
+                consistency = consistency + F.mse_loss(feat, deepest)
             loss = loss + self.lambda_consistency * consistency
         if teacher_proto is not None:
             target = teacher_proto[labels]

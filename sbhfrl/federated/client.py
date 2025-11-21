@@ -66,8 +66,9 @@ class ClientNode:
                     loss = self.criterion(
                         logits,
                         labels,
-                        fingerprints=aux.get("fingerprints", []),
-                        latent_stats=aux.get("latent_stats", []),
+                        mus=aux.get("mus", []),
+                        logvars=aux.get("logvars", []),
+                        sampled_feats=aux.get("sampled_feats", []),
                         fused_repr=aux.get("embeddings", embeddings),
                         teacher_proto=teacher,
                     )

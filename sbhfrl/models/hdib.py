@@ -1,4 +1,4 @@
-from typing import List, Sequence, Tuple
+from typing import List, Tuple
 
 import torch
 import torch.nn as nn
@@ -7,106 +7,62 @@ from torchvision.models import ResNet18_Weights, resnet18
 
 from .resnet import BasicBlock
 
+
 class SpectrumWiseFeaturePurifier(nn.Module):
+    """Lightweight spatial purifier using depthwise separable convs."""
+
     def __init__(self, channels: int):
         super().__init__()
         self.depthwise = nn.Conv2d(channels, channels, 3, padding=1, groups=channels, bias=False)
         self.pointwise = nn.Conv2d(channels, channels, 1, bias=False)
         self.bn = nn.BatchNorm2d(channels)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         residual = x
         x = self.depthwise(x)
         x = self.pointwise(x)
         x = self.bn(x)
-        return F.relu(x + residual)
-# class SpectrumWiseFeaturePurifier(nn.Module):
-#     """Conv residual filter to suppress localized noise before IB purification."""
+        return self.relu(x + residual)
 
-#     def __init__(self, channels: int):
-#         super().__init__()
-#         self.depthwise = nn.Conv2d(channels, channels, 3, padding=1, groups=channels, bias=False)
-#         self.pointwise = nn.Conv2d(channels, channels, 1, bias=False)
-#         self.bn = nn.BatchNorm2d(channels)
-
-#     def forward(self, x: torch.Tensor) -> torch.Tensor:
-#         residual = x
-#         x = self.depthwise(x)
-#         x = self.pointwise(x)
-#         x = self.bn(x)
-#         return F.relu(x + residual)
 
 class CrossLayerAttention(nn.Module):
-    def __init__(self, levels: int, dim: int):
+    """Adaptive spectral attention over latent vectors."""
+
+    def __init__(self, dim: int):
         super().__init__()
-        self.proj = nn.ModuleList([nn.Linear(dim, dim) for _ in range(levels)])
-        self.score = nn.Linear(dim, 1)
-
-    def forward(self, feats: Sequence[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
-        stacked = []
-        for proj, feat in zip(self.proj, feats):
-            stacked.append(torch.tanh(proj(feat)))
-        stack = torch.stack(stacked, dim=1)
-        logits = self.score(stack)
-        weights = torch.softmax(logits, dim=1)
-        fused = (weights * stack).sum(dim=1)
-        return fused, weights
-# class AdaptiveSpectralAttention(nn.Module):
-#     """Adaptive spectral attention over purified features with temperature."""
-
-#     def __init__(self, levels: int, dim: int, temperature: float = 0.7):
-#         super().__init__()
-#         self.levels = levels
-#         self.temperature = temperature
-#         self.mlp = nn.Sequential(
-#             nn.Linear(levels * dim, dim),
-#             nn.LayerNorm(dim),
-#             nn.ReLU(inplace=True),
-#             nn.Linear(dim, levels),
-#         )
-
-#     def forward(self, feats: Sequence[torch.Tensor]) -> Tuple[torch.Tensor, torch.Tensor]:
-#         concat = torch.cat(feats, dim=1)
-#         logits = self.mlp(concat) / max(self.temperature, 1e-3)
-#         weights = torch.softmax(logits, dim=1).unsqueeze(-1)
-#         stacked = torch.stack(feats, dim=1)
-#         fused = (weights * stacked).sum(dim=1)
-#         return fused, weights
-
-class IBHead(nn.Module):
-    def __init__(self, dim: int, latent_dim: int):
-        super().__init__()
-        self.mu = nn.Linear(dim, latent_dim)
-        self.logvar = nn.Linear(dim, latent_dim)
-
-    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        return self.mu(x), self.logvar(x)
-# class IBHead(nn.Module):
-#     def __init__(self, dim: int, latent_dim: int):
-#         super().__init__()
-#         self.mu = nn.Linear(dim, latent_dim)
-#         self.logvar = nn.Linear(dim, latent_dim)
-
-#     def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-#         mu = self.mu(x)
-#         logvar = self.logvar(x)
-#         std = torch.exp(0.5 * logvar)
-#         eps = torch.randn_like(std)
-#         sample = mu + eps * std
-#         return mu, logvar, sample
-
-
-class AlignmentHead(nn.Module):
-    def __init__(self, in_dim: int, out_dim: int):
-        super().__init__()
-        self.layers = nn.Sequential(
-            nn.Linear(in_dim, out_dim),
-            nn.BatchNorm1d(out_dim),
+        self.attn_fc = nn.Sequential(
+            nn.Linear(dim, dim // 2),
             nn.ReLU(inplace=True),
+            nn.Linear(dim // 2, 1),
         )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return self.layers(x)
+    def forward(self, feats: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        # feats: [B, K, D]
+        scores = self.attn_fc(feats)  # [B, K, 1]
+        weights = torch.softmax(scores, dim=1)
+        fused = (weights * feats).sum(dim=1)
+        return fused, weights
+
+
+class VariationalProjector(nn.Module):
+    """Variational bottleneck that outputs mu/logvar and projects to latent_dim."""
+
+    def __init__(self, in_dim: int, latent_dim: int):
+        super().__init__()
+        self.fc = nn.Sequential(
+            nn.Linear(in_dim, in_dim),
+            nn.BatchNorm1d(in_dim),
+            nn.ReLU(inplace=True),
+        )
+        self.mu_head = nn.Linear(in_dim, latent_dim)
+        self.logvar_head = nn.Linear(in_dim, latent_dim)
+
+    def forward(self, x: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        x = self.fc(x)
+        mu = self.mu_head(x)
+        logvar = self.logvar_head(x).clamp(min=-5.0, max=5.0)
+        return mu, logvar
 
 
 class HDIBNet(nn.Module):
@@ -123,17 +79,23 @@ class HDIBNet(nn.Module):
         self.backbone_type = backbone
         self.backbone_pretrained = backbone_pretrained
         self.res_inplanes = 64
-        self.stem, self.blocks, self.purifiers, self.channels = self._build_backbone(backbone)
-        self.ib_heads = nn.ModuleList([IBHead(c, latent_dim) for c in self.channels])
-        self.align_heads = nn.ModuleList([AlignmentHead(c, latent_dim) for c in self.channels])
-        self.cross_attention = CrossLayerAttention(len(self.channels), latent_dim)
+        self.stem, self.blocks, self.purifiers, self.channels = self._build_backbone(backbone, backbone_pretrained)
+        self.projectors = nn.ModuleList([VariationalProjector(c, latent_dim) for c in self.channels])
+        self.cross_attention = CrossLayerAttention(latent_dim)
         self.classifier = nn.Linear(latent_dim, num_classes)
 
-    def _build_backbone(self, backbone: str):
+    def _reparameterize(self, mu: torch.Tensor, logvar: torch.Tensor) -> torch.Tensor:
+        if self.training:
+            std = torch.exp(0.5 * logvar).clamp(min=1e-3)
+            eps = torch.randn_like(std)
+            return mu + eps * std
+        return mu
+
+    def _build_backbone(self, backbone: str, pretrained: bool):
         if backbone == "resnet10":
             return self._build_resnet10_backbone()
         if backbone == "resnet18":
-            return self._build_resnet18_backbone(pretrained=self.backbone_pretrained)
+            return self._build_resnet18_backbone(pretrained)
         return self._build_custom_backbone()
 
     def _build_custom_backbone(self):
@@ -200,23 +162,34 @@ class HDIBNet(nn.Module):
         feats = []
         x = self.stem(x)
         for block, purifier in zip(self.blocks, self.purifiers):
-            x = purifier(block(x))
-            feats.append(x)
+            feat = purifier(block(x))
+            feats.append(feat)
+            x = feat
         return feats
 
     def forward(self, x: torch.Tensor):
         feats = self._collect(x)
         pooled = [F.adaptive_avg_pool2d(f, 1).flatten(1) for f in feats]
-        aligned = []
-        latent_stats = []
-        for feat, ib_head, align_head in zip(pooled, self.ib_heads, self.align_heads):
-            mu, logvar = ib_head(feat)
-            latent_stats.append((mu, logvar))
-            aligned.append(align_head(feat))
-        fused, weights = self.cross_attention(aligned)
+        sampled = []
+        mus = []
+        logvars = []
+        for feat, projector in zip(pooled, self.projectors):
+            mu, logvar = projector(feat)
+            z = self._reparameterize(mu, logvar)
+            mus.append(mu)
+            logvars.append(logvar)
+            sampled.append(z)
+        stacked = torch.stack(sampled, dim=1)
+        fused, weights = self.cross_attention(stacked)
         embeddings = F.normalize(fused, dim=1)
         logits = self.classifier(embeddings)
-        self._last_aux = {"fingerprints": aligned, "latent_stats": latent_stats, "weights": weights, "embeddings": embeddings}
+        self._last_aux = {
+            "mus": mus,
+            "logvars": logvars,
+            "sampled_feats": sampled,
+            "weights": weights,
+            "embeddings": embeddings,
+        }
         return logits, embeddings
 
     @property

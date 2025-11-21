@@ -164,6 +164,3 @@ $$ P_{local} = \sum_{k=1}^{K} \alpha_k \cdot \hat{z}^k $$
 **步骤四：层级语义一致性约束 (Cross-Spectrum Consistency)**
 为了防止浅层特征和深层特征在语义空间上“打架”，我们增加一个一致性损失，强制浅层特征在经过映射后，其分布要向深层特征靠拢（因为深层语义更准确）：
 $$ L_{Consist} = \sum_{k=1}^{K-1} || \hat{z}^k - \text{StopGradient}(\hat{z}^K) ||_2^2 $$
-
-
-
