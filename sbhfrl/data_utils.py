@@ -1,6 +1,7 @@
 import os
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Sequence, Optional
 
+import random
 import numpy as np
 import torch
 import torchvision
@@ -8,6 +9,83 @@ import torchvision.transforms as transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader, Dataset, Subset
 
+class CIFARCTransformDataset(torch.utils.data.Dataset):
+    """支持多 corruption 文件、可选 train/test 划分、训练增广的 CIFAR-C Dataset。"""
+    def __init__(
+        self,
+        root: str,
+        corruption_dir: str,
+        corruptions: Optional[Sequence[str]] = None,  # e.g. ["gaussian_noise", "brightness"]
+        severities: Optional[Sequence[int]] = None,    # e.g. [1,2,3,4,5]
+        train: bool = True,
+        train_ratio: float = 0.8,
+        augment: bool = True,
+    ):
+        full_dir = os.path.join(root, corruption_dir)
+        if not os.path.isdir(full_dir):
+            raise FileNotFoundError(f"CIFAR-C folder not found: {full_dir}")
+
+        # 收集候选 corruption 文件
+        files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
+        if corruptions:
+            files = [f for f in files if any(corr in f for corr in corruptions)]
+        if severities:
+            files = [f for f in files if any(f"s{sev}" in f for sev in severities)]
+        files.sort()
+        if not files:
+            raise FileNotFoundError(f"No corruption .npy files matched under {full_dir}")
+
+        # 读取并拼接多 corruption
+        imgs_list = []
+        for f in files:
+            imgs_list.append(np.load(os.path.join(full_dir, f)))
+        images = np.concatenate(imgs_list, axis=0)  # [N, 32, 32, 3]
+        labels = np.load(os.path.join(full_dir, "labels.npy"))
+        # 若 labels 与单个 corruption 对应，需要重复以匹配拼接后的大小
+        if images.shape[0] != labels.shape[0]:
+            reps = images.shape[0] // labels.shape[0]
+            labels = np.tile(labels, reps)
+
+        # 划分 train/test
+        num_total = images.shape[0]
+        indices = np.arange(num_total)
+        rng = np.random.default_rng(42)  # 固定随机种子，便于复现
+        rng.shuffle(indices)
+        split = int(num_total * train_ratio)
+        chosen = indices[:split] if train else indices[split:]
+        images = images[chosen]
+        labels = labels[chosen]
+
+        images = torch.tensor(images).permute(0, 3, 1, 2).float() / 255.0
+        normalize = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+        if train and augment:
+            aug = transforms.Compose([
+                transforms.RandomHorizontalFlip(),
+                transforms.RandomCrop(32, padding=4),
+            ])
+            images = aug(images)
+        images = normalize(images)
+        self.images = images
+        self.labels = torch.tensor(labels, dtype=torch.long)
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        return self.images[idx], self.labels[idx]
+
+
+def get_cifar_c(root: str, corruption_dir: str) -> Dataset:
+    """
+    默认返回训练集；测试集请使用 get_cifar_c_test。
+    若只需要一个 Dataset（当前代码路径），可仍然用此函数，但需注意 train_ratio。
+    """
+    return CIFARCTransformDataset(root, corruption_dir, train=True)
+
+
+def get_cifar_c_test(root: str, corruption_dir: str) -> Dataset:
+    """与训练集分开取的测试集。"""
+    return CIFARCTransformDataset(root, corruption_dir, train=False, augment=False)
 
 def get_dataset(config: Dict) -> Tuple[Dataset, Dataset]:
     name = config.get("dataset", "cifar10").lower()
@@ -16,7 +94,7 @@ def get_dataset(config: Dict) -> Tuple[Dataset, Dataset]:
         return get_cifar10(root)
     if name in {"cifar100c", "cifar100-c"}:
         train_ds = get_cifar_c(root, corruption_dir="cifar100-c")
-        test_ds = train_ds
+        test_ds = get_cifar_c_test(root, corruption_dir="cifar100-c")
         return train_ds, test_ds
     if name in {"office-caltech", "office_caltech"}:
         return get_office_caltech(root)
@@ -43,48 +121,26 @@ def get_cifar10(root: str) -> Tuple[Dataset, Dataset]:
     return train_dataset, test_dataset
 
 
-# def get_cifar100(root: str) -> Tuple[Dataset, Dataset]:
-#     mean = (0.5071, 0.4867, 0.4408)
-#     std = (0.2675, 0.2565, 0.2761)
-#     transform_train = transforms.Compose(
-#         [
-#             transforms.RandomHorizontalFlip(),
-#             transforms.RandomCrop(32, padding=4),
-#             transforms.ToTensor(),
-#             transforms.Normalize(mean, std),
-#         ]
-#     )
-#     transform_test = transforms.Compose(
-#         [
-#             transforms.ToTensor(),
-#             transforms.Normalize(mean, std),
-#         ]
-#     )
-#     train_dataset = torchvision.datasets.CIFAR100(root=root, train=True, download=True, transform=transform_train)
-#     test_dataset = torchvision.datasets.CIFAR100(root=root, train=False, download=True, transform=transform_test)
-#     return train_dataset, test_dataset
-
-
-def get_cifar_c(root: str, corruption_dir: str) -> Dataset:
-    """Load CIFAR-C style dataset as TensorDataset; expects corruption .npy files under root/corruption_dir."""
-    full_dir = os.path.join(root, corruption_dir)
-    if not os.path.isdir(full_dir):
-        raise FileNotFoundError(
-            f"CIFAR-C folder not found: {full_dir}. Please place corruption .npy files there."
-        )
-    files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
-    if not files:
-        raise FileNotFoundError(f"No corruption .npy files found in {full_dir}.")
-    files.sort()
-    first = files[0]
-    images = np.load(os.path.join(full_dir, first))
-    labels = np.load(os.path.join(full_dir, "labels.npy"))
-    images = torch.tensor(images).permute(0, 3, 1, 2).float() / 255.0
-    # Use CIFAR-10 stats; acceptable approximation for CIFAR-100-C if absent.
-    transform = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
-    images = transform(images)
-    dataset = torch.utils.data.TensorDataset(images, torch.tensor(labels))
-    return dataset
+# def get_cifar_c(root: str, corruption_dir: str) -> Dataset:
+#     """Load CIFAR-C style dataset as TensorDataset; expects corruption .npy files under root/corruption_dir."""
+#     full_dir = os.path.join(root, corruption_dir)
+#     if not os.path.isdir(full_dir):
+#         raise FileNotFoundError(
+#             f"CIFAR-C folder not found: {full_dir}. Please place corruption .npy files there."
+#         )
+#     files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
+#     if not files:
+#         raise FileNotFoundError(f"No corruption .npy files found in {full_dir}.")
+#     files.sort()
+#     first = files[0]
+#     images = np.load(os.path.join(full_dir, first))
+#     labels = np.load(os.path.join(full_dir, "labels.npy"))
+#     images = torch.tensor(images).permute(0, 3, 1, 2).float() / 255.0
+#     # Use CIFAR-10 stats; acceptable approximation for CIFAR-100-C if absent.
+#     transform = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
+#     images = transform(images)
+#     dataset = torch.utils.data.TensorDataset(images, torch.tensor(labels, dtype=torch.long))
+#     return dataset
 
 
 def get_office_caltech(root: str) -> Tuple[Dataset, Dataset]:
@@ -118,8 +174,26 @@ def get_office_caltech(root: str) -> Tuple[Dataset, Dataset]:
     return train_dataset, test_dataset
 
 
+def _extract_labels(dataset: Dataset) -> np.ndarray:
+    """Best-effort label extraction supporting TensorDataset and torchvision datasets."""
+    if hasattr(dataset, "targets"):
+        labels = dataset.targets
+    elif hasattr(dataset, "labels"):  # Some datasets use .labels instead of .targets
+        labels = dataset.labels
+    elif hasattr(dataset, "tensors") and len(dataset.tensors) >= 2:
+        labels = dataset.tensors[1]
+    else:  # Fallback to indexing; may be slower but keeps function robust.
+        labels = [dataset[idx][1] for idx in range(len(dataset))]
+
+    if torch.is_tensor(labels):
+        labels = labels.cpu().numpy()
+    else:
+        labels = np.array(labels)
+    return labels
+
+
 def dirichlet_partition(dataset: Dataset, num_clients: int, alpha: float) -> List[Subset]:
-    labels = np.array(dataset.targets)
+    labels = _extract_labels(dataset)
     num_classes = len(np.unique(labels))
     idx_by_class = [np.where(labels == cls)[0] for cls in range(num_classes)]
     client_indices: List[List[int]] = [[] for _ in range(num_clients)]
@@ -157,7 +231,7 @@ def compute_prototypes(model: torch.nn.Module, loader: DataLoader, num_classes: 
     with torch.no_grad():
         for images, labels in loader:
             images = images.to(device)
-            labels = labels.to(device)
+            labels = labels.to(device).long()
             _, embeddings = model(images)
             proto.index_add_(0, labels, embeddings)
             counts.index_add_(0, labels, torch.ones_like(labels, dtype=torch.float))
