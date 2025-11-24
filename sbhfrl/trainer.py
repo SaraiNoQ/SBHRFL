@@ -5,7 +5,7 @@ from typing import Dict, List
 import torch
 from torch.utils.data import DataLoader
 
-from .data_utils import build_loaders, dirichlet_partition, get_cifar10_datasets
+from .data_utils import build_loaders, dirichlet_partition, get_dataset
 from .federated.aggregation import QualityAwareAggregator, SimpleAggregator
 from .federated.blockchain import BlockchainMemory
 from .federated.client import ClientNode
@@ -24,7 +24,7 @@ def _create_clients(loaders: List[DataLoader], config: Dict) -> List[ClientNode]
 
 
 def run_federated_training(config: Dict, device: torch.device) -> None:
-    train_dataset, test_dataset = get_cifar10_datasets(root=config.get("data_root", "./data"))
+    train_dataset, test_dataset = get_dataset(config)
     num_clients = config["num_shards"] * config["clients_per_shard"]
     subsets = dirichlet_partition(train_dataset, num_clients, config.get("alpha_dirichlet", 0.5))
     loaders = build_loaders(subsets, config.get("batch_size", 64), num_workers=config.get("data_num_workers", 0))

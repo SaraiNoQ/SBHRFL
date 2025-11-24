@@ -3,6 +3,7 @@
   "device": "auto",
   "data_root": "./data",
   "data_num_workers": 0,
+  "dataset": "cifar100c",
   "num_classes": 10,
   "model": "hdib",
   "hdib_backbone": "resnet18",

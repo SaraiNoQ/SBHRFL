@@ -1,13 +1,29 @@
+import os
 from typing import Dict, List, Tuple
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader, Dataset, Subset
 import torchvision
 import torchvision.transforms as transforms
+from torchvision.datasets import ImageFolder
+from torch.utils.data import DataLoader, Dataset, Subset
 
 
-def get_cifar10_datasets(root: str = "./data") -> Tuple[Dataset, Dataset]:
+def get_dataset(config: Dict) -> Tuple[Dataset, Dataset]:
+    name = config.get("dataset", "cifar10").lower()
+    root = config.get("data_root", "./data")
+    if name == "cifar10":
+        return get_cifar10(root)
+    if name in {"cifar100c", "cifar100-c"}:
+        train_ds = get_cifar_c(root, corruption_dir="cifar100-c")
+        test_ds = train_ds
+        return train_ds, test_ds
+    if name in {"office-caltech", "office_caltech"}:
+        return get_office_caltech(root)
+    raise ValueError("Unsupported dataset. Choose 'cifar10' or 'cifar100c'.")
+
+
+def get_cifar10(root: str) -> Tuple[Dataset, Dataset]:
     transform_train = transforms.Compose(
         [
             transforms.RandomHorizontalFlip(),
@@ -24,6 +40,81 @@ def get_cifar10_datasets(root: str = "./data") -> Tuple[Dataset, Dataset]:
     )
     train_dataset = torchvision.datasets.CIFAR10(root=root, train=True, download=True, transform=transform_train)
     test_dataset = torchvision.datasets.CIFAR10(root=root, train=False, download=True, transform=transform_test)
+    return train_dataset, test_dataset
+
+
+# def get_cifar100(root: str) -> Tuple[Dataset, Dataset]:
+#     mean = (0.5071, 0.4867, 0.4408)
+#     std = (0.2675, 0.2565, 0.2761)
+#     transform_train = transforms.Compose(
+#         [
+#             transforms.RandomHorizontalFlip(),
+#             transforms.RandomCrop(32, padding=4),
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean, std),
+#         ]
+#     )
+#     transform_test = transforms.Compose(
+#         [
+#             transforms.ToTensor(),
+#             transforms.Normalize(mean, std),
+#         ]
+#     )
+#     train_dataset = torchvision.datasets.CIFAR100(root=root, train=True, download=True, transform=transform_train)
+#     test_dataset = torchvision.datasets.CIFAR100(root=root, train=False, download=True, transform=transform_test)
+#     return train_dataset, test_dataset
+
+
+def get_cifar_c(root: str, corruption_dir: str) -> Dataset:
+    """Load CIFAR-C style dataset as TensorDataset; expects corruption .npy files under root/corruption_dir."""
+    full_dir = os.path.join(root, corruption_dir)
+    if not os.path.isdir(full_dir):
+        raise FileNotFoundError(
+            f"CIFAR-C folder not found: {full_dir}. Please place corruption .npy files there."
+        )
+    files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
+    if not files:
+        raise FileNotFoundError(f"No corruption .npy files found in {full_dir}.")
+    files.sort()
+    first = files[0]
+    images = np.load(os.path.join(full_dir, first))
+    labels = np.load(os.path.join(full_dir, "labels.npy"))
+    images = torch.tensor(images).permute(0, 3, 1, 2).float() / 255.0
+    # Use CIFAR-10 stats; acceptable approximation for CIFAR-100-C if absent.
+    transform = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010))
+    images = transform(images)
+    dataset = torch.utils.data.TensorDataset(images, torch.tensor(labels))
+    return dataset
+
+
+def get_office_caltech(root: str) -> Tuple[Dataset, Dataset]:
+    """Office-Caltech loader expects ImageFolder structure under root/office_caltech/{train,test}."""
+    import os
+
+    train_dir = os.path.join(root, "office_caltech", "train")
+    test_dir = os.path.join(root, "office_caltech", "test")
+    if not (os.path.isdir(train_dir) and os.path.isdir(test_dir)):
+        raise FileNotFoundError(
+            "Office-Caltech folders not found. Expected train/ and test/ under data_root/office_caltech/."
+        )
+    transform_train = transforms.Compose(
+        [
+            transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+        ]
+    )
+    transform_test = transforms.Compose(
+        [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+        ]
+    )
+    train_dataset = ImageFolder(train_dir, transform=transform_train)
+    test_dataset = ImageFolder(test_dir, transform=transform_test)
     return train_dataset, test_dataset
 
 

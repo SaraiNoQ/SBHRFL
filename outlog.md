@@ -148,6 +148,7 @@
 [Round 50] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 81.54%
 ```
 
+```purifier+alpha=1.0
 [Round 1] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 21.60%
 [Round 2] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 31.93%
 [Round 3] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 32.64%
@@ -198,3 +199,110 @@
 [Round 48] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 83.02%
 [Round 49] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 82.19%
 [Round 50] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 82.88%
+```
+
+```alpha=0.5
+[Round 1] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 20.00%
+[Round 2] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 20.07%
+[Round 3] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 25.25%
+[Round 4] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 29.80%
+[Round 5] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 35.13%
+[Round 6] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 44.42%
+[Round 7] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 40.86%
+[Round 8] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 50.78%
+[Round 9] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 51.00%
+[Round 10] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 53.79%
+[Round 11] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.40%
+[Round 12] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 44.81%
+[Round 13] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 54.64%
+[Round 14] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 54.13%
+[Round 15] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 54.82%
+[Round 16] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 62.86%
+[Round 17] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 64.40%
+[Round 18] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 63.30%
+[Round 19] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 66.79%
+[Round 20] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 64.16%
+[Round 21] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.94%
+[Round 22] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.23%
+[Round 23] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 69.86%
+[Round 24] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 69.47%
+[Round 25] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 72.29%
+[Round 26] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 72.82%
+[Round 27] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.30%
+[Round 28] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.91%
+[Round 29] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.36%
+[Round 30] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 68.94%
+[Round 31] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 71.69%
+[Round 32] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 67.71%
+[Round 33] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 74.35%
+[Round 34] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 75.93%
+[Round 35] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 74.09%
+[Round 36] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 78.47%
+[Round 37] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 76.36%
+[Round 38] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 76.06%
+[Round 39] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 77.90%
+[Round 40] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 73.51%
+[Round 41] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 80.08%
+[Round 42] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 73.96%
+[Round 43] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 77.21%
+[Round 44] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 76.46%
+[Round 45] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 79.18%
+[Round 46] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 78.49%
+[Round 47] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 76.44%
+[Round 48] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 77.81%
+[Round 49] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 80.12%
+[Round 50] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 78.79%
+```
+
+```office-caltech
+[Round 1] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 13.44%
+[Round 2] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 11.41%
+[Round 3] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 15.48%
+[Round 4] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 12.83%
+[Round 5] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 17.31%
+[Round 6] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 21.38%
+[Round 7] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 24.03%
+[Round 8] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 27.09%
+[Round 9] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 35.85%
+[Round 10] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 36.46%
+[Round 11] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 40.12%
+[Round 12] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 39.92%
+[Round 13] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 45.62%
+[Round 14] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 46.23%
+[Round 15] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 44.40%
+[Round 16] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 42.77%
+[Round 17] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 49.69%
+[Round 18] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 49.08%
+[Round 19] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 48.07%
+[Round 20] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 48.88%
+[Round 21] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 52.14%
+[Round 22] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 47.25%
+[Round 23] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 53.36%
+[Round 24] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 50.51%
+[Round 25] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 55.19%
+[Round 26] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 51.53%
+[Round 27] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 54.99%
+[Round 28] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 54.58%
+[Round 29] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 53.56%
+[Round 30] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 57.43%
+[Round 31] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 57.43%
+[Round 32] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 56.21%
+[Round 33] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.45%
+[Round 34] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 59.88%
+[Round 35] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.25%
+[Round 36] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 57.43%
+[Round 37] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.25%
+[Round 38] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.66%
+[Round 39] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 58.45%
+[Round 40] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 62.32%
+[Round 41] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 62.93%
+[Round 42] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 63.34%
+[Round 43] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 63.34%
+[Round 44] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 65.99%
+[Round 45] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 63.75%
+[Round 46] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 65.58%
+[Round 47] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 62.32%
+[Round 48] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 66.40%
+[Round 49] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 65.99%
+[Round 50] HD-IB+QualityFusion+MemoryDistill+Clustering Accuracy: 64.36%
+```
