@@ -23,7 +23,9 @@ class ReputationConsensus:
         protos = torch.stack([summary["prototypes"].float() for summary in shard_summaries])
         flat = protos.view(protos.size(0), -1)
         dist_matrix = torch.cdist(flat, flat, p=2)
-        mean_dist = dist_matrix.mean(dim=1)
+        # 忽略自身距离，避免 0 距离稀释异常分数
+        mask = ~torch.eye(dist_matrix.size(0), dtype=torch.bool, device=dist_matrix.device)
+        mean_dist = (dist_matrix * mask).sum(dim=1) / mask.sum(dim=1).clamp(min=1)
         kept_states = []
         kept_protos = []
         weights = []

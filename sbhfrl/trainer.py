@@ -14,21 +14,24 @@ from .models import build_model
 from .utils import evaluate
 
 
-def _create_clients(loaders: List[DataLoader], config: Dict) -> List[ClientNode]:
+def _create_clients(loaders: List[DataLoader], config: Dict, malicious_ids=None) -> List[ClientNode]:
     clients = []
     shard_size = config["clients_per_shard"]
     for idx, loader in enumerate(loaders):
         shard_id = idx // shard_size
-        clients.append(ClientNode(idx, shard_id, loader, config))
+        is_malicious = malicious_ids is not None and idx in malicious_ids
+        clients.append(ClientNode(idx, shard_id, loader, config, malicious=is_malicious))
     return clients
 
 
 def run_federated_training(config: Dict, device: torch.device) -> None:
     train_dataset, test_dataset = get_dataset(config)
     num_clients = config["num_shards"] * config["clients_per_shard"]
+    num_malicious = int(num_clients * config.get("mal_ratio", 0.0))
+    malicious_ids = set(random.sample(range(num_clients), num_malicious)) if num_malicious > 0 else set()
     subsets = dirichlet_partition(train_dataset, num_clients, config.get("alpha_dirichlet", 0.5))
     loaders = build_loaders(subsets, config.get("batch_size", 64), num_workers=config.get("data_num_workers", 0))
-    clients = _create_clients(loaders, config)
+    clients = _create_clients(loaders, config, malicious_ids)
     shard_groups: Dict[int, List[ClientNode]] = defaultdict(list)
     for client in clients:
         shard_groups[client.shard_id].append(client)

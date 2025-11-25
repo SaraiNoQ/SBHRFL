@@ -11,7 +11,7 @@ from ..optim import Muon
 
 
 class ClientNode:
-    def __init__(self, client_id: int, shard_id: int, loader: DataLoader, config: Dict):
+    def __init__(self, client_id: int, shard_id: int, loader: DataLoader, config: Dict, malicious: bool = False):
         self.client_id = client_id
         self.shard_id = shard_id
         self.loader = loader
@@ -19,6 +19,7 @@ class ClientNode:
         self.config = config
         self.proto_loader = DataLoader(loader.dataset, batch_size=config.get("proto_batch_size", 128), shuffle=False)
         self.reputation = config.get("init_reputation", 0.8)
+        self.malicious = malicious
         self.use_hdib = config.get("model", "base") == "hdib"
         self.criterion = HDIBLoss(config) if self.use_hdib else BaseProtoLoss()
 
@@ -30,6 +31,22 @@ class ClientNode:
     ) -> Dict:
         model = build_model(self.config).to(device)
         model.load_state_dict(global_state)
+        if self.malicious:
+            # 恶意客户端：跳过正常训练，上传随机状态和原型
+            fake_state = {k: torch.randn_like(v).cpu() for k, v in global_state.items()}
+            proto = torch.randn(self.config.get("num_classes", 10), model.embedding_dim, device=device)
+            proto = torch.nn.functional.normalize(proto, dim=1)
+            payload = {
+                "client_id": self.client_id,
+                "shard_id": self.shard_id,
+                "state_dict": fake_state,
+                "prototypes": proto.cpu(),
+                "num_samples": self.num_samples,
+                "metrics": {"density": 0.0, "channel": 0.0, "reputation": 0.0},
+                "malicious": True,
+            }
+            return payload
+
         betas = self.config.get("muon_betas", [0.9, 0.99])
         optimizer = Muon(
             model.parameters(),

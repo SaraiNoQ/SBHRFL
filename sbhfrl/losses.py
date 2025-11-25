@@ -37,7 +37,7 @@ class HDIBLoss(nn.Module):
     def __init__(self, config: Dict):
         super().__init__()
         self.ce = nn.CrossEntropyLoss()
-        self.lambda_ib = config.get("lambda_ib", 1.0)
+        self.lambda_ib = config.get("lambda_ib", 0.01)
         self.lambda_contrast = config.get("lambda_contrast", 0.2)
         self.lambda_consistency = config.get("lambda_consistency", 0.5)
         self.lambda_distill = config.get("lambda_distill", 0.1)
