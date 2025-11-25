@@ -98,7 +98,9 @@ def get_dataset(config: Dict) -> Tuple[Dataset, Dataset]:
         return train_ds, test_ds
     if name in {"office-caltech", "office_caltech"}:
         return get_office_caltech(root)
-    raise ValueError("Unsupported dataset. Choose 'cifar10' or 'cifar100c'.")
+    if name in {"domainnet-car", "domainnet_car"}:
+        return get_domainnet_car(root)
+    raise ValueError("Unsupported dataset. Choose 'cifar10', 'cifar100c', 'office-caltech', or 'domainnet-car'.")
 
 
 def get_cifar10(root: str) -> Tuple[Dataset, Dataset]:
@@ -119,28 +121,6 @@ def get_cifar10(root: str) -> Tuple[Dataset, Dataset]:
     train_dataset = torchvision.datasets.CIFAR10(root=root, train=True, download=True, transform=transform_train)
     test_dataset = torchvision.datasets.CIFAR10(root=root, train=False, download=True, transform=transform_test)
     return train_dataset, test_dataset
-
-
-# def get_cifar_c(root: str, corruption_dir: str) -> Dataset:
-#     """Load CIFAR-C style dataset as TensorDataset; expects corruption .npy files under root/corruption_dir."""
-#     full_dir = os.path.join(root, corruption_dir)
-#     if not os.path.isdir(full_dir):
-#         raise FileNotFoundError(
-#             f"CIFAR-C folder not found: {full_dir}. Please place corruption .npy files there."
-#         )
-#     files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
-#     if not files:
-#         raise FileNotFoundError(f"No corruption .npy files found in {full_dir}.")
-#     files.sort()
-#     first = files[0]
-#     images = np.load(os.path.join(full_dir, first))
-#     labels = np.load(os.path.join(full_dir, "labels.npy"))
-#     images = torch.tensor(images).permute(0, 3, 1, 2).float() / 255.0
-#     # Use CIFAR-10 stats; acceptable approximation for CIFAR-100-C if absent.
-#     transform = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
-#     images = transform(images)
-#     dataset = torch.utils.data.TensorDataset(images, torch.tensor(labels, dtype=torch.long))
-#     return dataset
 
 
 def get_office_caltech(root: str) -> Tuple[Dataset, Dataset]:
@@ -167,6 +147,35 @@ def get_office_caltech(root: str) -> Tuple[Dataset, Dataset]:
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225)),
+        ]
+    )
+    train_dataset = ImageFolder(train_dir, transform=transform_train)
+    test_dataset = ImageFolder(test_dir, transform=transform_test)
+    return train_dataset, test_dataset
+
+
+def get_domainnet_car(root: str) -> Tuple[Dataset, Dataset]:
+    """DomainNet-Car subset prepared as ImageFolder under root/DomainNet-Car/train|test."""
+    train_dir = os.path.join(root, "DomainNet-Car", "train")
+    test_dir = os.path.join(root, "DomainNet-Car", "test")
+    if not (os.path.isdir(train_dir) and os.path.isdir(test_dir)):
+        raise FileNotFoundError("Expected DomainNet-Car/train and DomainNet-Car/test under data_root.")
+
+    normalize = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    transform_train = transforms.Compose(
+        [
+            transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]
+    )
+    transform_test = transforms.Compose(
+        [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            normalize,
         ]
     )
     train_dataset = ImageFolder(train_dir, transform=transform_train)
