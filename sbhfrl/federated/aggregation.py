@@ -85,6 +85,7 @@ class SimpleAggregator:
             "state_dict": _avg_state_dicts(state_dicts, weights),
             "prototypes": _merge_prototypes(prototypes, weights, self.use_cluster, self.cluster_threshold),
             "weight": weights.sum().item(),
+            "malicious": any(payload.get("malicious", False) for payload in payloads),
         }
         return summary
 
@@ -111,5 +112,6 @@ class QualityAwareAggregator:
             "state_dict": _avg_state_dicts(state_dicts, weight_tensor),
             "prototypes": _merge_prototypes(prototypes, weight_tensor, self.use_cluster, self.cluster_threshold),
             "weight": weight_tensor.sum().item(),
+            "malicious": any(payload.get("malicious", False) for payload in payloads),
         }
         return summary

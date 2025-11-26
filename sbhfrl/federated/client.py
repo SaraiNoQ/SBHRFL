@@ -33,7 +33,16 @@ class ClientNode:
         model.load_state_dict(global_state)
         if self.malicious:
             # 恶意客户端：跳过正常训练，上传随机状态和原型
-            fake_state = {k: torch.randn_like(v).cpu() for k, v in global_state.items()}
+            def _fake_param(t: torch.Tensor) -> torch.Tensor:
+                if t.is_floating_point():
+                    return torch.randn_like(t)
+                if t.is_complex():
+                    return torch.randn_like(t.real) + 1j * torch.randn_like(t.real)
+                if t.dtype in (torch.int8, torch.int16, torch.int32, torch.int64, torch.uint8):
+                    return torch.randint(low=0, high=10, size=t.shape, device=t.device, dtype=t.dtype)
+                return torch.zeros_like(t)
+
+            fake_state = {k: _fake_param(v).cpu() for k, v in global_state.items()}
             proto = torch.randn(self.config.get("num_classes", 10), model.embedding_dim, device=device)
             proto = torch.nn.functional.normalize(proto, dim=1)
             payload = {
