@@ -175,8 +175,10 @@ def get_dataset(config: Dict) -> Tuple[Dataset, Dataset]:
         return get_office_caltech(root)
     if name in {"domainnet-car", "domainnet_car"}:
         return get_domainnet_car(root)
-    if name == "vlcs":
+    if name in {"vlcs", "VLCS"}:
         return get_vlcs(root)
+    if name in {"traffic", "traffic-signs"}:
+        return get_signs(root)
     raise ValueError("Unsupported dataset. Choose 'cifar10', 'cifar100c', 'office-caltech', or 'domainnet-car'.")
 
 
@@ -270,6 +272,33 @@ def get_vlcs(root: str) -> Tuple[Dataset, Dataset]:
         [
             transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
             transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            normalize,
+        ]
+    )
+    transform_test = transforms.Compose(
+        [
+            transforms.Resize(256),
+            transforms.CenterCrop(224),
+            transforms.ToTensor(),
+            normalize,
+        ]
+    )
+    train_dataset = ImageFolder(train_dir, transform=transform_train)
+    test_dataset = ImageFolder(test_dir, transform=transform_test)
+    return train_dataset, test_dataset
+
+def get_signs(root: str) -> Tuple[Dataset, Dataset]:
+    """Traffic signs prepared as ImageFolder under root/traffic-signs/train|test."""
+    train_dir = os.path.join(root, "traffic-signs", "Train")
+    test_dir = os.path.join(root, "traffic-signs", "Test")
+    if not (os.path.isdir(train_dir) and os.path.isdir(test_dir)):
+        raise FileNotFoundError("Expected Traffic/Train and Traffic/Test under data_root.")
+    normalize = transforms.Normalize((0.485, 0.456, 0.406), (0.229, 0.224, 0.225))
+    transform_train = transforms.Compose(
+        [
+            transforms.RandomResizedCrop(224, scale=(0.8, 1.0)),
+            # transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             normalize,
         ]
