@@ -157,6 +157,40 @@
 [Round 50] HD-IB Accuracy: 57.88%
 ```
 
+```hdib+alpha=0.5+true+5/3
+[Round 1] HD-IB+MemoryDistill+Clustering Accuracy: 9.30%
+[Round 2] HD-IB+MemoryDistill+Clustering Accuracy: 16.59%
+[Round 3] HD-IB+MemoryDistill+Clustering Accuracy: 17.08%
+[Round 4] HD-IB+MemoryDistill+Clustering Accuracy: 18.03%
+[Round 5] HD-IB+MemoryDistill+Clustering Accuracy: 26.17%
+[Round 6] HD-IB+MemoryDistill+Clustering Accuracy: 26.44%
+[Round 7] HD-IB+MemoryDistill+Clustering Accuracy: 29.20%
+[Round 8] HD-IB+MemoryDistill+Clustering Accuracy: 23.10%
+[Round 9] HD-IB+MemoryDistill+Clustering Accuracy: 29.44%
+[Round 10] HD-IB+MemoryDistill+Clustering Accuracy: 25.19%
+[Round 11] HD-IB+MemoryDistill+Clustering Accuracy: 31.44%
+[Round 12] HD-IB+MemoryDistill+Clustering Accuracy: 31.89%
+[Round 13] HD-IB+MemoryDistill+Clustering Accuracy: 32.91%
+[Round 14] HD-IB+MemoryDistill+Clustering Accuracy: 33.58%
+[Round 15] HD-IB+MemoryDistill+Clustering Accuracy: 34.58%
+[Round 16] HD-IB+MemoryDistill+Clustering Accuracy: 35.38%
+[Round 17] HD-IB+MemoryDistill+Clustering Accuracy: 32.22%
+[Round 18] HD-IB+MemoryDistill+Clustering Accuracy: 35.69%
+[Round 19] HD-IB+MemoryDistill+Clustering Accuracy: 38.58%
+[Round 20] HD-IB+MemoryDistill+Clustering Accuracy: 35.51%
+[Round 21] HD-IB+MemoryDistill+Clustering Accuracy: 37.45%
+[Round 22] HD-IB+MemoryDistill+Clustering Accuracy: 44.59%
+[Round 23] HD-IB+MemoryDistill+Clustering Accuracy: 38.60%
+[Round 24] HD-IB+MemoryDistill+Clustering Accuracy: 43.96%
+[Round 25] HD-IB+MemoryDistill+Clustering Accuracy: 44.59%
+[Round 26] HD-IB+MemoryDistill+Clustering Accuracy: 41.89%
+[Round 27] HD-IB+MemoryDistill+Clustering Accuracy: 44.76%
+[Round 28] HD-IB+MemoryDistill+Clustering Accuracy: 40.14%
+[Round 29] HD-IB+MemoryDistill+Clustering Accuracy: 41.21%
+[Round 30] HD-IB+MemoryDistill+Clustering Accuracy: 44.32%
+[Round 31] HD-IB+MemoryDistill+Clustering Accuracy: 44.63%
+```
+
 ```hdib+alpha=1+mal=0.2
 [Round 1] HD-IB+LedgerConsensus Accuracy: 12.54%
 [Round 2] HD-IB+LedgerConsensus Accuracy: 17.55%
@@ -314,4 +348,90 @@
 [Round 68] FedSR Accuracy: 22.82%
 [Round 69] FedSR Accuracy: 24.68%
 [Round 70] FedSR Accuracy: 24.37%
+[Round 71] FedSR Accuracy: 23.33%
+[Round 72] FedSR Accuracy: 21.06%
+[Round 73] FedSR Accuracy: 23.62%
+[Round 74] FedSR Accuracy: 18.28%
+[Round 75] FedSR Accuracy: 23.79%
+[Round 76] FedSR Accuracy: 20.26%
+[Round 77] FedSR Accuracy: 20.68%
+[Round 78] FedSR Accuracy: 22.50%
+[Round 79] FedSR Accuracy: 18.63%
+[Round 80] FedSR Accuracy: 27.02%
+[Round 81] FedSR Accuracy: 22.10%
+[Round 82] FedSR Accuracy: 21.64%
+[Round 83] FedSR Accuracy: 21.26%
+[Round 84] FedSR Accuracy: 28.00%
+[Round 85] FedSR Accuracy: 24.33%
+[Round 86] FedSR Accuracy: 24.28%
+[Round 87] FedSR Accuracy: 27.84%
+[Round 88] FedSR Accuracy: 27.64%
+[Round 89] FedSR Accuracy: 25.37%
+```
+
+```feddp+0.5+5/3+true
+[Round 1] FedDP Accuracy: 9.27%
+[Round 2] FedDP Accuracy: 10.03%
+[Round 3] FedDP Accuracy: 14.43%
+[Round 4] FedDP Accuracy: 14.32%
+[Round 5] FedDP Accuracy: 14.48%
+[Round 6] FedDP Accuracy: 14.79%
+[Round 7] FedDP Accuracy: 12.50%
+[Round 8] FedDP Accuracy: 10.94%
+[Round 9] FedDP Accuracy: 8.49%
+[Round 10] FedDP Accuracy: 12.88%
+[Round 11] FedDP Accuracy: 12.54%
+[Round 12] FedDP Accuracy: 16.43%
+[Round 13] FedDP Accuracy: 17.83%
+[Round 14] FedDP Accuracy: 20.37%
+[Round 15] FedDP Accuracy: 16.12%
+[Round 16] FedDP Accuracy: 20.75%
+[Round 17] FedDP Accuracy: 19.97%
+[Round 18] FedDP Accuracy: 19.03%
+[Round 19] FedDP Accuracy: 16.68%
+[Round 20] FedDP Accuracy: 20.48%
+[Round 21] FedDP Accuracy: 17.30%
+[Round 22] FedDP Accuracy: 23.70%
+[Round 23] FedDP Accuracy: 17.32%
+[Round 24] FedDP Accuracy: 20.17%
+[Round 25] FedDP Accuracy: 20.08%
+[Round 26] FedDP Accuracy: 19.44%
+[Round 27] FedDP Accuracy: 20.24%
+[Round 28] FedDP Accuracy: 19.21%
+[Round 29] FedDP Accuracy: 19.99%
+[Round 30] FedDP Accuracy: 21.57%
+[Round 31] FedDP Accuracy: 21.08%
+[Round 32] FedDP Accuracy: 21.35%
+[Round 33] FedDP Accuracy: 15.77%
+[Round 34] FedDP Accuracy: 20.86%
+[Round 35] FedDP Accuracy: 19.26%
+[Round 36] FedDP Accuracy: 17.26%
+[Round 37] FedDP Accuracy: 23.57%
+[Round 38] FedDP Accuracy: 20.12%
+[Round 39] FedDP Accuracy: 20.79%
+[Round 40] FedDP Accuracy: 17.55%
+[Round 41] FedDP Accuracy: 20.21%
+[Round 42] FedDP Accuracy: 18.17%
+[Round 43] FedDP Accuracy: 24.53%
+[Round 44] FedDP Accuracy: 25.46%
+[Round 45] FedDP Accuracy: 17.83%
+[Round 46] FedDP Accuracy: 20.15%
+[Round 47] FedDP Accuracy: 15.28%
+[Round 48] FedDP Accuracy: 19.86%
+[Round 49] FedDP Accuracy: 20.72%
+[Round 50] FedDP Accuracy: 25.17%
+[Round 51] FedDP Accuracy: 22.04%
+[Round 52] FedDP Accuracy: 23.90%
+[Round 53] FedDP Accuracy: 24.91%
+[Round 54] FedDP Accuracy: 24.13%
+[Round 55] FedDP Accuracy: 23.79%
+[Round 56] FedDP Accuracy: 25.24%
+```
+
+```hdib+0.5+5/3+true
+[Round 1] HD-IB+MemoryDistill+Clustering Accuracy: 9.30%
+[Round 2] HD-IB+MemoryDistill+Clustering Accuracy: 16.59%
+[Round 3] HD-IB+MemoryDistill+Clustering Accuracy: 17.08%
+[Round 4] HD-IB+MemoryDistill+Clustering Accuracy: 18.03%
+[Round 5] HD-IB+MemoryDistill+Clustering Accuracy: 26.17%
 ```
