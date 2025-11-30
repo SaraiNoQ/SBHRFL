@@ -32,10 +32,11 @@ class FedMPSClient:
         self.config = config
         self.use_hdib = config.get("model", "base") == "hdib"
         self.ce_loss = HDIBLoss(config) if self.use_hdib else BaseProtoLoss()
-        self.lambda_contrast = float(config.get("lambda_proto_contrast", 0.1))
-        self.lambda_soft = float(config.get("lambda_soft_label", 0.3))
-        self.lambda_align = float(config.get("lambda_proto_align", 0.1))
-        self.proto_temp = float(config.get("proto_temperature", 0.5))
+        # Paper-inspired defaults: stronger soft-label guidance and prototype alignment.
+        self.lambda_contrast = float(config.get("lambda_proto_contrast", 0.2))
+        self.lambda_soft = float(config.get("lambda_soft_label", 0.6))
+        self.lambda_align = float(config.get("lambda_proto_align", 0.3))
+        self.proto_temp = float(config.get("proto_temperature", 0.7))
 
     def _build_optimizer(self, model: torch.nn.Module) -> Muon:
         betas = self.config.get("muon_betas", [0.9, 0.99])
