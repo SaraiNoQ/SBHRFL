@@ -44,16 +44,16 @@ def _plot_bubble(counts: np.ndarray, title: str, out_path: str) -> None:
             # Scale bubble area; add a small floor so tiny counts remain visible.
             sizes.append(200.0 * cnt / max_count + 10.0)
 
-    plt.figure(figsize=(7, 5), dpi=150)
+    plt.figure(figsize=(7, 5), dpi=250)
     sc = plt.scatter(xs, ys, c=colors, s=sizes, cmap="Blues", alpha=0.7, edgecolors="k", linewidths=0.3)
     cbar = plt.colorbar(sc)
-    cbar.set_label("Number of Samples")
-    plt.xlabel("Client")
-    plt.ylabel("Label")
-    plt.title(title)
+    cbar.set_label("Number of Samples", fontsize=16, fontfamily="Times New Roman")
+    plt.xlabel("Client", fontsize=16, fontfamily="Times New Roman")
+    plt.ylabel("Label", fontsize=16, fontfamily="Times New Roman")
+    plt.title(title, fontsize=18, fontweight="bold", fontfamily="Times New Roman")
     plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.4)
     plt.tight_layout()
-    plt.savefig(out_path)
+    plt.savefig(out_path, format="svg")
     plt.close()
     print(f"Saved plot to {out_path}")
 
