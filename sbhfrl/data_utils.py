@@ -3,6 +3,7 @@ from bisect import bisect_right
 from typing import Dict, List, Tuple, Sequence, Optional
 
 import random
+import math
 import numpy as np
 import torch
 import torchvision
@@ -31,28 +32,47 @@ class CIFARCTransformDataset(Dataset):
         files = [f for f in os.listdir(full_dir) if f.endswith(".npy") and f != "labels.npy"]
         if corruptions:
             files = [f for f in files if any(corr in f for corr in corruptions)]
-        if severities:
-            files = [f for f in files if any(f"s{sev}" in f for sev in severities)]
         files.sort()
         if not files:
             raise FileNotFoundError(f"No corruption .npy files matched under {full_dir}")
 
+        labels_all = np.load(os.path.join(full_dir, "labels.npy"), mmap_mode="r")
         self.images_list = []
+        self.labels_list = []
         self.cum_lengths = []
         total = 0
         for f in files:
             arr = np.load(os.path.join(full_dir, f), mmap_mode="r")
+            if severities:
+                block = max(1, arr.shape[0] // 5)
+                keep = []
+                for sev in severities:
+                    start = max(0, (sev - 1) * block)
+                    end = min(arr.shape[0], sev * block)
+                    if start < end:
+                        keep.append(np.arange(start, end))
+                if keep:
+                    keep_idx = np.concatenate(keep)
+                    arr = arr[keep_idx]
+                    labels_curr = labels_all[keep_idx]
+                else:
+                    labels_curr = labels_all
+            else:
+                labels_curr = labels_all
             self.images_list.append(arr)
+            self.labels_list.append(labels_curr)
             total += len(arr)
             self.cum_lengths.append(total)
         self.total_len = total
 
-        self.labels = np.load(os.path.join(full_dir, "labels.npy"), mmap_mode="r")
+        self.labels = np.concatenate(self.labels_list) if self.labels_list else labels_all
         indices = np.arange(self.total_len)
         rng = np.random.default_rng(42)
         rng.shuffle(indices)
         split = int(self.total_len * train_ratio)
         self.indices = indices[:split] if train else indices[split:]
+        # After self.indices is set
+        self.targets = self.labels[self.indices]  # labels aligned to current split
 
         self.normalize = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761))
         self.aug = None
@@ -81,7 +101,7 @@ class CIFARCTransformDataset(Dataset):
         if self.aug:
             img = self.aug(img)
         img = self.normalize(img)
-        label = int(self.labels[inner_idx % len(self.labels)])
+        label = int(self.labels[global_idx])
         return img, label
 
 # class CIFARCTransformDataset(torch.utils.data.Dataset):
@@ -320,6 +340,8 @@ def _extract_labels(dataset: Dataset) -> np.ndarray:
     """Best-effort label extraction supporting TensorDataset and torchvision datasets."""
     if hasattr(dataset, "targets"):
         labels = dataset.targets
+    elif hasattr(dataset, "labels") and hasattr(dataset, "indices"):
+        labels = dataset.labels[dataset.indices]
     elif hasattr(dataset, "labels"):  # Some datasets use .labels instead of .targets
         labels = dataset.labels
     elif hasattr(dataset, "tensors") and len(dataset.tensors) >= 2:
@@ -354,6 +376,9 @@ def dirichlet_partition(dataset: Dataset, num_clients: int, alpha: float) -> Lis
 def build_loaders(subsets: List[Subset], batch_size: int, num_workers: int = 0) -> List[DataLoader]:
     loaders = []
     for subset in subsets:
+        pin_memory = num_workers > 0
+        persistent = num_workers > 0
+        prefetch = 2 if num_workers > 0 else None
         loaders.append(
             DataLoader(
                 subset,
@@ -361,6 +386,9 @@ def build_loaders(subsets: List[Subset], batch_size: int, num_workers: int = 0) 
                 shuffle=True,
                 num_workers=num_workers,
                 drop_last=len(subset) >= batch_size,
+                pin_memory=pin_memory,
+                persistent_workers=persistent,
+                prefetch_factor=prefetch,
             )
         )
     return loaders
