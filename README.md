@@ -1,5 +1,11 @@
 ## SB-HFRL Simulation
 
+### environment
+
+```
+pip install numpy pillow tqdm matplotlib
+```
+
 This repository now separates the SB-HFRL simulation into modular components:
 
 - `sbhfrl/models`: prototype backbones (`base`, `hdib`, `resnet10`)
@@ -19,6 +25,30 @@ This repository now separates the SB-HFRL simulation into modular components:
 
 ```bash
 python run.py --config configs/default.json
+```
+
+```
+python -m sbhfrl.fedavg --config configs/default.json
+```
+
+```
+python tools/visualize_partition.py --config configs/default.json --out partition_vis.png
+```
+
+```
+python tools/eval_cifar100c_feature_shift.py \
+  --config configs/default.json \
+  --checkpoint path/to/ckpt.pth \
+  --corruptions fog,snow,frost,brightness,contrast \
+  --severities 1,2,3,4,5 \
+  --out-csv eval_cifar100c_corruptions.csv
+```
+python tools/run_cifar100c_feature_shift.py \
+  --config configs/default.json \
+  --method sbhfrl \
+  --corruptions fog,snow,frost,brightness,contrast \
+  --severities 1,2,3,4,5 \
+  --out results_fedmps.txt
 ```
 
 The console output shows round accuracy and which components are currently enabled (e.g., `FedProto`, `HD-IB+QualityFusion`, etc.).
