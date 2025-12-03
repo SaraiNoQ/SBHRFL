@@ -129,3 +129,67 @@
 [Round 66] HD-IB+MemoryDistill+Clustering Accuracy: 66.88%
 [Round 67] HD-IB+MemoryDistill+Clustering Accuracy: 67.72%
 ```
+
+```fedsr+0.1
+[Round 1] FedSR Accuracy: 45.37%
+[Round 2] FedSR Accuracy: 45.37%
+[Round 3] FedSR Accuracy: 45.41%
+[Round 4] FedSR Accuracy: 45.37%
+[Round 5] FedSR Accuracy: 45.37%
+[Round 6] FedSR Accuracy: 45.37%
+[Round 7] FedSR Accuracy: 45.37%
+[Round 8] FedSR Accuracy: 45.37%
+[Round 9] FedSR Accuracy: 20.87%
+[Round 10] FedSR Accuracy: 15.56%
+[Round 11] FedSR Accuracy: 15.56%
+[Round 12] FedSR Accuracy: 50.07%
+[Round 13] FedSR Accuracy: 45.51%
+[Round 14] FedSR Accuracy: 39.45%
+[Round 15] FedSR Accuracy: 43.22%
+[Round 16] FedSR Accuracy: 45.27%
+[Round 17] FedSR Accuracy: 45.37%
+[Round 18] FedSR Accuracy: 45.37%
+[Round 19] FedSR Accuracy: 45.32%
+[Round 20] FedSR Accuracy: 45.37%
+[Round 21] FedSR Accuracy: 51.19%
+[Round 22] FedSR Accuracy: 45.37%
+[Round 23] FedSR Accuracy: 45.37%
+[Round 24] FedSR Accuracy: 45.37%
+[Round 25] FedSR Accuracy: 33.63%
+[Round 26] FedSR Accuracy: 45.37%
+[Round 27] FedSR Accuracy: 45.37%
+[Round 28] FedSR Accuracy: 45.37%
+[Round 29] FedSR Accuracy: 45.37%
+[Round 30] FedSR Accuracy: 45.37%
+[Round 31] FedSR Accuracy: 47.79%
+[Round 32] FedSR Accuracy: 31.44%
+[Round 33] FedSR Accuracy: 27.76%
+[Round 34] FedSR Accuracy: 27.71%
+[Round 35] FedSR Accuracy: 27.62%
+[Round 36] FedSR Accuracy: 45.37%
+[Round 37] FedSR Accuracy: 45.18%
+[Round 38] FedSR Accuracy: 49.05%
+[Round 39] FedSR Accuracy: 41.92%
+[Round 40] FedSR Accuracy: 45.37%
+[Round 41] FedSR Accuracy: 45.37%
+[Round 42] FedSR Accuracy: 45.37%
+[Round 43] FedSR Accuracy: 45.37%
+[Round 44] FedSR Accuracy: 45.37%
+[Round 45] FedSR Accuracy: 45.37%
+[Round 46] FedSR Accuracy: 45.37%
+[Round 47] FedSR Accuracy: 51.14%
+[Round 48] FedSR Accuracy: 45.41%
+[Round 49] FedSR Accuracy: 27.62%
+[Round 50] FedSR Accuracy: 46.81%
+[Round 51] FedSR Accuracy: 45.37%
+[Round 52] FedSR Accuracy: 27.62%
+[Round 53] FedSR Accuracy: 46.72%
+[Round 54] FedSR Accuracy: 50.91%
+[Round 55] FedSR Accuracy: 45.37%
+[Round 56] FedSR Accuracy: 45.37%
+[Round 57] FedSR Accuracy: 45.37%
+```
+
+```fedmps+0.1
+
+```

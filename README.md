@@ -32,6 +32,10 @@ python -m sbhfrl.fedavg --config configs/default.json
 ```
 
 ```
+python run.py --config configs/default.json --save-ckpt checkpoints/sbhfrl_best.pth
+```
+
+```
 python tools/visualize_partition.py --config configs/default.json --out partition_vis.png
 ```
 
