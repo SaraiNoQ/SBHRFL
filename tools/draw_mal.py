@@ -12,9 +12,9 @@ methods = ['FedAvg', 'FedProto', 'SBFRL (Ours)']
 
 # 数据结构：每个方法的准确率列表
 # FedAvg: 只有 0%, 10%, 20%
-acc_fedavg = [63.70, 47.23, 45.1] 
+acc_fedavg = [63.70, 17.23, 8.51] 
 # FedProto: 只有 0%, 10%, 20%
-acc_fedproto = [80.03, 20.87, 2.34]
+acc_fedproto = [80.03, 20.87, 8.34]
 # Ours: 包含 0%, 10%, 20%, 30%
 acc_ours = [98.05, 95.97, 92.18, 83.72]
 
@@ -70,7 +70,7 @@ for i, item in enumerate(data):
                       edgecolor='black', linewidth=0.8, zorder=3)
         
         # (可选) 在柱子上方显示数值
-        ax.text(x_pos, acc + 1, f'{acc:.1f}', ha='center', va='bottom', fontsize=10, fontfamily="Times New Roman")
+        # ax.text(x_pos, acc + 1, f'{acc:.1f}', ha='center', va='bottom', fontsize=10, fontfamily="Times New Roman")
 
 # ==========================================
 # 4. 图表美化 (符合期刊规范)
