@@ -6,6 +6,15 @@
 pip install numpy pillow tqdm matplotlib
 ```
 
+For RTX 50 series GPU, run:
+```
+pip install --pre torch torchvision torchaudio --index-url https://download.pytorch.org/whl/nightly/cu128
+```
+and use this to verify avalibility:
+```
+python -c "import torch; print(torch.__version__, torch.version.cuda, torch.cuda.get_arch_list(), torch.cuda.get_device_capability())"
+```
+
 This repository now separates the SB-HFRL simulation into modular components:
 
 - `sbhfrl/models`: prototype backbones (`base`, `hdib`, `resnet10`)
@@ -46,6 +55,8 @@ python tools/eval_cifar100c_feature_shift.py \
   --corruptions fog,snow,frost,brightness,contrast \
   --severities 1,2,3,4,5 \
   --out-csv eval_cifar100c_corruptions.csv
+```
+
 ```
 python tools/run_cifar100c_feature_shift.py \
   --config configs/default.json \
