@@ -1,4 +1,5 @@
 import json
+import os
 import random
 from pathlib import Path
 from typing import Dict, Optional
@@ -44,6 +45,20 @@ def load_config(path: str) -> Dict:
     with config_path.open() as f:
         data = json.load(f)
     return data
+
+
+def save_checkpoint(state_dict: Dict[str, torch.Tensor], path: str, meta: Optional[Dict] = None) -> None:
+    """
+    Persist a model state_dict with optional metadata.
+    """
+    payload: Dict = {"state_dict": state_dict}
+    if meta:
+        payload.update(meta)
+    path_obj = Path(path)
+    if path_obj.parent:
+        os.makedirs(path_obj.parent, exist_ok=True)
+    torch.save(payload, path_obj)
+    print(f"[Checkpoint] Saved to {path_obj}")
 
 
 @torch.no_grad()

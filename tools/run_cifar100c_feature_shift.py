@@ -28,7 +28,7 @@ from sbhfrl.federated.consensus import ReputationConsensus, SimpleConsensus
 from sbhfrl.losses import BaseProtoLoss, HDIBLoss
 from sbhfrl.models import build_model
 from sbhfrl.optim import Muon
-from sbhfrl.utils import evaluate, get_device, load_config, set_seed
+from sbhfrl.utils import evaluate, get_device, load_config, save_checkpoint, set_seed
 
 # Baseline clients
 from sbhfrl.fedavg import FedAvgClient
@@ -194,7 +194,7 @@ def run_method(method: str, config: Dict, shards: List[Tuple[str, CIFARCTransfor
     global_model.load_state_dict(global_state)
     shard_accs = eval_on_loaders(global_model, test_loaders, device)
     global_acc = evaluate(global_model, combined, device)
-    return shard_accs, global_acc
+    return shard_accs, global_acc, {k: v.cpu() for k, v in global_model.state_dict().items()}
 
 
 def parse_args():
@@ -225,6 +225,12 @@ def parse_args():
         default="cifar100c_feature_shift_results.txt",
         help="Where to save a human-readable summary.",
     )
+    parser.add_argument(
+        "--save-ckpt",
+        type=str,
+        default="",
+        help="Optional path to save the final state_dict for the selected method.",
+    )
     return parser.parse_args()
 
 
@@ -238,7 +244,7 @@ def main():
     severities = [int(s) for s in args.severities.split(",") if s.strip()]
 
     shards = build_shard_datasets(config, corruptions, severities)
-    shard_accs, global_acc = run_method(args.method, config, shards, device)
+    shard_accs, global_acc, final_state = run_method(args.method, config, shards, device)
 
     lines = []
     lines.append(f"Method: {args.method}")
@@ -254,6 +260,9 @@ def main():
             f.write(line + "\n")
     print("\n".join(lines))
     print(f"Saved summary to {args.out}")
+
+    if args.save_ckpt:
+        save_checkpoint(final_state, args.save_ckpt, meta={"method": args.method, "global_acc": global_acc})
 
 
 if __name__ == "__main__":

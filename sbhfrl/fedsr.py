@@ -11,7 +11,7 @@ from sbhfrl.federated.aggregation import _avg_state_dicts
 from sbhfrl.losses import BaseProtoLoss, HDIBLoss
 from sbhfrl.models import build_model
 from sbhfrl.optim import Muon
-from sbhfrl.utils import evaluate, get_device, load_config, set_seed
+from sbhfrl.utils import evaluate, get_device, load_config, save_checkpoint, set_seed
 
 
 class FedSRClient:
@@ -144,6 +144,8 @@ def run_fedsr(config: Dict, device: torch.device) -> None:
         num_workers=config.get("data_num_workers", 0),
     )
 
+    best_acc = -1.0
+    best_state = None
     for round_idx in range(config.get("rounds", 1)):
         participate = min(config.get("clients_per_round", len(clients)), len(clients))
         selected = random.sample(clients, participate)
@@ -152,17 +154,28 @@ def run_fedsr(config: Dict, device: torch.device) -> None:
         global_model.load_state_dict(global_state)
         acc = evaluate(global_model, test_loader, device)
         print(f"[Round {round_idx + 1}] FedSR Accuracy: {acc * 100:.2f}%")
+        if acc > best_acc:
+            best_acc = acc
+            best_state = {k: v.cpu() for k, v in global_state.items()}
+
+    save_path = config.get("save_checkpoint")
+    if save_path:
+        to_save = best_state or {k: v.cpu() for k, v in global_state.items()}
+        save_checkpoint(to_save, save_path, meta={"method": "fedsr", "best_acc": best_acc})
 
 
 def _parse_args():
     parser = argparse.ArgumentParser(description="FedSR baseline aligned with SB-HFRL configs.")
     parser.add_argument("--config", type=str, default="configs/default.json", help="Path to config JSON file.")
+    parser.add_argument("--save-ckpt", type=str, default=None, help="Optional path to save the best checkpoint.")
     return parser.parse_args()
 
 
 def main():
     args = _parse_args()
     config = load_config(args.config)
+    if args.save_ckpt:
+        config["save_checkpoint"] = args.save_ckpt
     set_seed(config.get("seed", 42))
     device = get_device(config.get("device", "auto"))
     run_fedsr(config, device)

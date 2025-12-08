@@ -11,7 +11,7 @@ from .federated.blockchain import BlockchainMemory
 from .federated.client import ClientNode
 from .federated.consensus import ReputationConsensus, SimpleConsensus
 from .models import build_model
-from .utils import evaluate
+from .utils import evaluate, save_checkpoint
 
 
 def _create_clients(loaders: List[DataLoader], config: Dict, malicious_ids=None) -> List[ClientNode]:
@@ -69,6 +69,8 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
         num_workers=config.get("data_num_workers", 0),
     )
 
+    best_acc = -1.0
+    best_state = None
     for round_idx in range(config.get("rounds", 1)):
         shard_summaries = []
         teacher_proto = blockchain.teacher() if blockchain is not None else None
@@ -99,3 +101,12 @@ def run_federated_training(config: Dict, device: torch.device) -> None:
             enabled_components.append("Clustering")
         tag = "+".join(enabled_components) if enabled_components else "FedProto"
         print(f"[Round {round_idx + 1}] {tag} Accuracy: {acc * 100:.2f}%")
+        if acc > best_acc:
+            best_acc = acc
+            best_state = {k: v.cpu() for k, v in global_state.items()}
+
+    save_path = config.get("save_checkpoint")
+    if save_path:
+        to_save = best_state or {k: v.cpu() for k, v in global_state.items()}
+        tag = config.get("model", "base")
+        save_checkpoint(to_save, save_path, meta={"method": tag, "best_acc": best_acc})
