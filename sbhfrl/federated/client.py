@@ -96,6 +96,7 @@ class ClientNode:
                         logvars=aux.get("logvars", []),
                         sampled_feats=aux.get("sampled_feats", []),
                         fused_repr=aux.get("embeddings", embeddings),
+                        attn_weights=aux.get("weights"),
                         teacher_proto=teacher,
                     )
                 else:

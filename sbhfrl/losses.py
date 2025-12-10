@@ -33,6 +33,14 @@ def supervised_contrastive(features: torch.Tensor, labels: torch.Tensor, tempera
     return -mean_log_prob_pos.mean()
 
 
+def attention_entropy(weights: torch.Tensor) -> torch.Tensor:
+    """Entropy of attention weights; supports [B,K,1] or [B,K]."""
+    if weights.dim() == 3:
+        weights = weights.squeeze(-1)
+    weights = weights.clamp(min=1e-6)
+    return (-weights * weights.log()).sum(dim=1).mean()
+
+
 class HDIBLoss(nn.Module):
     def __init__(self, config: Dict):
         super().__init__()
@@ -41,6 +49,7 @@ class HDIBLoss(nn.Module):
         self.lambda_contrast = config.get("lambda_contrast", 0.2)
         self.lambda_consistency = config.get("lambda_consistency", 0.5)
         self.lambda_distill = config.get("lambda_distill", 0.1)
+        self.lambda_attention = config.get("lambda_attention", 0.01)
 
     def forward(
         self,
@@ -50,6 +59,7 @@ class HDIBLoss(nn.Module):
         logvars: List[torch.Tensor],
         sampled_feats: List[torch.Tensor],
         fused_repr: torch.Tensor,
+        attn_weights: torch.Tensor = None,
         teacher_proto: torch.Tensor = None,
     ) -> torch.Tensor:
         loss = self.ce(logits, labels)
@@ -67,4 +77,6 @@ class HDIBLoss(nn.Module):
         if teacher_proto is not None:
             target = teacher_proto[labels]
             loss = loss + self.lambda_distill * F.mse_loss(fused_repr, target)
+        if attn_weights is not None and self.lambda_attention > 0:
+            loss = loss + self.lambda_attention * attention_entropy(attn_weights)
         return loss

@@ -146,8 +146,8 @@ class HDIBNet(nn.Module):
         except Exception:
             backbone = resnet18(weights=None)
         stem = nn.Sequential(backbone.conv1, backbone.bn1, backbone.relu, backbone.maxpool)
-        channels = [64, 128, 256]
-        blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3])
+        channels = [64, 128, 256, 512]
+        blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3, backbone.layer4])
         purifiers = nn.ModuleList([SpectrumWiseFeaturePurifier(c) for c in channels])
         return stem, blocks, purifiers, channels
 

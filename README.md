@@ -40,6 +40,14 @@ python run.py --config configs/default.json
 python -m sbhfrl.fedavg --config configs/default.json
 ```
 
+```bash
+nohup bash -lc 'python -m sbhfrl.fedavg --config configs/default.json \
+&& python -m sbhfrl.fedprox --config configs/default.json \
+&& python -m sbhfrl.fedsr --config configs/default.json \
+&& python -m sbhfrl.fedmps --config configs/default.json \
+&& python -m sbhfrl.feddp --config configs/default.json' > run.log 2>&1 &
+```
+
 ```
 python run.py --config configs/default.json --save-ckpt checkpoints/sbhfrl_best.pth
 ```
@@ -105,3 +113,7 @@ The console output shows round accuracy and which components are currently enabl
   - `lambda_distill`: strength of EMA teacher guidance; keep small (≤0.2) to avoid over-regularization.
 
 When crafting new experiments, begin with the baseline (`model: "base"`, all `use_*` flags false). Once accuracy improves above the random 10% mark, enable one idea at a time (HD-IB, clustering, PoQ, ledger consensus, blockchain memory, etc.) so you can attribute any gain or regression to a particular component.
+
+
+
+
