@@ -15,6 +15,7 @@ def build_model(config: Dict):
             latent_dim=embedding_dim,
             backbone=config.get("hdib_backbone", "custom"),
             backbone_pretrained=config.get("backbone_pretrained", True),
+            latent_layers=config.get("latent_layers", 3)
         )
     if model_name == "resnet18":
         return ResNet18(num_classes=num_classes, embedding_dim=embedding_dim, pretrained=config.get("backbone_pretrained", True))

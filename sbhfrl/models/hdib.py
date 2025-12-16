@@ -72,12 +72,16 @@ class HDIBNet(nn.Module):
         latent_dim: int = 128,
         backbone: str = "custom",
         backbone_pretrained: bool = True,
+        latent_layers: int = 3,
     ):
         super().__init__()
         self.embedding_dim = latent_dim
         self._last_aux = {}
         self.backbone_type = backbone
         self.backbone_pretrained = backbone_pretrained
+        self.latent_layers = latent_layers
+        if self.latent_layers not in (3, 4):
+            raise ValueError(f"latent_layers must be 3 or 4, got {self.latent_layers}.")
         self.res_inplanes = 64
         self.stem, self.blocks, self.purifiers, self.channels = self._build_backbone(backbone, backbone_pretrained)
         self.projectors = nn.ModuleList([VariationalProjector(c, latent_dim) for c in self.channels])
@@ -146,8 +150,14 @@ class HDIBNet(nn.Module):
         except Exception:
             backbone = resnet18(weights=None)
         stem = nn.Sequential(backbone.conv1, backbone.bn1, backbone.relu, backbone.maxpool)
-        channels = [64, 128, 256, 512]
-        blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3, backbone.layer4])
+
+        if self.latent_layers == 3:
+            channels = [64, 128, 256]
+            blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3])
+        else:
+            channels = [64, 128, 256, 512]
+            blocks = nn.ModuleList([backbone.layer1, backbone.layer2, backbone.layer3, backbone.layer4])
+
         purifiers = nn.ModuleList([SpectrumWiseFeaturePurifier(c) for c in channels])
         return stem, blocks, purifiers, channels
 
@@ -187,7 +197,8 @@ class HDIBNet(nn.Module):
             "mus": mus,
             "logvars": logvars,
             "sampled_feats": sampled,
-            "weights": weights,
+            "weights": weights,  # backward-compatible alias
+            "attn_weights": weights,
             "embeddings": embeddings,
         }
         return logits, embeddings
