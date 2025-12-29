@@ -89,6 +89,7 @@ class ClientNode:
                 if self.use_hdib:
                     aux = getattr(model, "aux", {})
                     teacher = teacher_proto.to(device) if teacher_proto is not None else None
+                    attn_weights = aux.get("attn_weights", aux.get("weights", None))
                     loss = self.criterion(
                         logits,
                         labels,
@@ -96,7 +97,7 @@ class ClientNode:
                         logvars=aux.get("logvars", []),
                         sampled_feats=aux.get("sampled_feats", []),
                         fused_repr=aux.get("embeddings", embeddings),
-                        attn_weights=aux.get("weights"),
+                        attn_weights=attn_weights,
                         teacher_proto=teacher,
                     )
                 else:
