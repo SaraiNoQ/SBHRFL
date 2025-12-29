@@ -53,7 +53,7 @@ python run.py --config configs/default.json --save-ckpt checkpoints/sbhfrl_best.
 ```
 
 ```
-python tools/visualize_partition.py --config configs/default.json --out partition_vis.png
+python -m tools.visualize_partition --config configs/default.json --out partition_vis.svg
 ```
 
 ```

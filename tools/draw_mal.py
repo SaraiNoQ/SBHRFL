@@ -78,13 +78,13 @@ for i, item in enumerate(data):
 
 # 设置 X 轴标签 (方法名称)
 ax.set_xticks(group_centers)
-ax.set_xticklabels(methods, fontsize=14, fontweight='bold', fontfamily="Times New Roman")
+ax.set_xticklabels(methods, fontsize=18, fontweight='bold', fontfamily="Times New Roman")
 
 ax.set_xlim(0.2, 4.2)
 
 # 设置 Y 轴
 ax.set_ylim(0, 105)
-ax.set_ylabel('Global Accuracy (%)', fontsize=16, fontweight='bold', fontfamily="Times New Roman")
+ax.set_ylabel('Global Accuracy (%)', fontsize=18, fontweight='bold', fontfamily="Times New Roman")
 ax.set_yticks(np.arange(0, 101, 10))
 
 # 设置标题 (根据你的要求，表达特定含义)
@@ -105,7 +105,7 @@ legend_elements = [
 ]
 
 ax.legend(handles=legend_elements, title="Malicious Ratio", 
-          fontsize=10, title_fontsize=11, loc='upper right', frameon=True)
+          fontsize=13, title_fontsize=14, loc='upper right', frameon=True)
 
 # 调整边框
 ax.spines['top'].set_visible(False)

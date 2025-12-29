@@ -42,15 +42,15 @@ def _plot_bubble(counts: np.ndarray, title: str, out_path: str) -> None:
             ys.append(cls)
             colors.append(cnt)
             # Scale bubble area; add a small floor so tiny counts remain visible.
-            sizes.append(200.0 * cnt / max_count + 10.0)
+            sizes.append(100.0 * cnt / max_count + 10.0)
 
     plt.figure(figsize=(7, 5), dpi=250)
     sc = plt.scatter(xs, ys, c=colors, s=sizes, cmap="Blues", alpha=0.7, edgecolors="k", linewidths=0.3)
     cbar = plt.colorbar(sc)
-    cbar.set_label("Number of Samples", fontsize=16, fontfamily="Times New Roman")
-    plt.xlabel("Client", fontsize=16, fontfamily="Times New Roman")
-    plt.ylabel("Label", fontsize=16, fontfamily="Times New Roman")
-    plt.title(title, fontsize=18, fontweight="bold", fontfamily="Times New Roman")
+    cbar.set_label("Number of Samples", fontsize=20, fontweight="bold", fontfamily="Times New Roman")
+    plt.xlabel("Client", fontsize=20, fontweight="bold", fontfamily="Times New Roman")
+    plt.ylabel("Label", fontsize=20, fontweight="bold", fontfamily="Times New Roman")
+    plt.title(title, fontsize=20, fontweight="bold", fontfamily="Times New Roman")
     plt.grid(True, linestyle="--", linewidth=0.5, alpha=0.4)
     plt.tight_layout()
     plt.savefig(out_path, format="svg")
@@ -72,8 +72,8 @@ def visualize_partition(config: Dict, out_path: str, alpha_override: float = Non
 def parse_args():
     parser = argparse.ArgumentParser(description="Visualize label distribution across clients after partition.")
     parser.add_argument("--config", type=str, default="configs/default.json", help="Path to config JSON.")
-    parser.add_argument("--out", type=str, default="partition_vis.png", help="Output image path.")
-    parser.add_argument("--alpha", type=float, default=None, help="Override Dirichlet alpha (uses config if None).")
+    parser.add_argument("--out", type=str, default="partition_vis.svg", help="Output image path.")
+    parser.add_argument("--alpha", type=float, default=0.1, help="Override Dirichlet alpha (uses config if None).")
     return parser.parse_args()
 
 

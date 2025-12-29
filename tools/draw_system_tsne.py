@@ -158,8 +158,8 @@ def plot_custom_grid(out_path="tsne_final_simulation.svg"):
                 labels=legend_texts, 
                 loc='upper right',       # 位置：右上角
                 title=legend_title,      # 标题：Class 或 Domain
-                fontsize=12,              # 字体大小
-                title_fontsize=9,        # 标题字体大小
+                fontsize=16,              # 字体大小
+                title_fontsize=14,        # 标题字体大小
                 frameon=True,            # 显示边框
                 framealpha=0.9,          # 背景不透明度，防止遮挡点看不清字
                 edgecolor='#cccccc'      # 边框颜色
@@ -176,11 +176,11 @@ def plot_custom_grid(out_path="tsne_final_simulation.svg"):
             # 标题逻辑
             # 左侧标题：显示方法名
             if c == 0:
-                ax.set_ylabel(titles_row[r], fontsize=14, fontweight='bold', labelpad=12, fontfamily="Times New Roman")
+                ax.set_ylabel(titles_row[r], fontsize=20, fontweight='bold', labelpad=12, fontfamily="Times New Roman")
             
             # 顶部标题：只在第一行显示 Color by ...
             if r == 0:
-                ax.set_title(titles_col[c], fontsize=16, fontweight='bold', pad=15, fontfamily="Times New Roman")
+                ax.set_title(titles_col[c], fontsize=20, fontweight='bold', pad=15, fontfamily="Times New Roman")
 
     plt.tight_layout()
     
