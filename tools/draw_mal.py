@@ -8,21 +8,21 @@ import numpy as np
 ratios = [0, 10, 20, 30]  # 对应 0%, 10%, 20%, 30%
 
 # 方法列表
-methods = ['FedAvg', 'FedProto', 'SBFRL (Ours)']
+methods = ['FedAvg + Krum', 'FedMPS + Krum', 'SPFPL (Ours)']
 
 # 数据结构：每个方法的准确率列表
 # FedAvg: 只有 0%, 10%, 20%
-acc_fedavg = [63.70, 17.23, 8.51] 
+acc_fedavg = [77.70, 70.89, 35.25, 27.50] 
 # FedProto: 只有 0%, 10%, 20%
-acc_fedproto = [80.03, 20.87, 8.34]
+acc_fedproto = [90.54, 54.05, 28.44, 18.02]
 # Ours: 包含 0%, 10%, 20%, 30%
-acc_ours = [98.05, 95.97, 92.18, 83.72]
+acc_ours = [98.05, 95.97, 93.18, 86.72]
 
 # 将数据整合，方便循环处理
 data = [
-    {'name': 'FedAvg',   'acc': acc_fedavg,   'ratios': [0, 10, 20]},
-    {'name': 'FedProto', 'acc': acc_fedproto, 'ratios': [0, 10, 20]},
-    {'name': 'SBFRL',  'acc': acc_ours,     'ratios': [0, 10, 20, 30]}
+    {'name': 'FedAvg',   'acc': acc_fedavg,   'ratios': [0, 10, 20, 30]},
+    {'name': 'FedProto', 'acc': acc_fedproto, 'ratios': [0, 10, 20, 30]},
+    {'name': 'SPFPL',  'acc': acc_ours,     'ratios': [0, 10, 20, 30]}
 ]
 
 # ==========================================
@@ -119,7 +119,7 @@ ax.spines['bottom'].set_linewidth(1.2)
 plt.tight_layout()
 
 # 保存为 SVG 矢量图，适合插入论文
-plt.savefig('robustness_comparison.svg', format='svg', dpi=300)
+plt.savefig('robustness_comparison.pdf', format='pdf', dpi=300)
 
 print("绘图完成！图片已保存为 robustness_comparison.svg 和 robustness_comparison.png")
 plt.show()
